@@ -1,12 +1,12 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Markup by Attribute for WooCommerce - MTB2 Tech\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: Markup by Attribute for WooCommerce - MT² Tech\n"
+"Report-Msgid-Bugs-To: markupbyattribute@mail.com\n"
 "POT-Creation-Date: 2020-04-17 00:43+0000\n"
-"PO-Revision-Date: 2024-10-04 02:17+0000\n"
+"PO-Revision-Date: 2024-10-05 03:36+0000\n"
 "Last-Translator: \n"
-"Language-Team: German\n"
-"Language: de_DE\n"
+"Language-Team: German (Switzerland, Informal)\n"
+"Language: de_CH_informal\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -78,8 +78,8 @@ msgid ""
 "How should Markup-by-Attribute handle adding price markup information to the "
 "product variation description?"
 msgstr ""
-"Wie soll Markup-by-Attribute die Hinzufügung von "
-"Preisaufschlagsinformationen zur Produktvariationsbeschreibung handhaben?"
+"Wie soll Markup-by-Attribute die Hinzufügung von Preiszuschlagsinformationen "
+"zur Produktvariationsbeschreibung handhaben?"
 
 #. URI of the plugin
 msgid "https://wordpress.org/plugins/markup-by-attribute-for-woocommerce/"
@@ -132,7 +132,7 @@ msgstr "Markup-by-Attribute Einstellungen"
 
 #: src/backend/settings.php:148
 msgid "Markup Calculation"
-msgstr "Aufschlagsberechnung"
+msgstr "Zuschlagsberechnung"
 
 #: src/backend/settings.php:84
 msgid "Markup Display"
@@ -159,11 +159,11 @@ msgid ""
 "variation <em>Set regular price</em> and <em>Set sale price</em> bulk edit "
 "action."
 msgstr ""
-"Aufschläge können <code>5</code> oder <code>5.95</code> sein. Außerdem könne "
-"Sie durch Prozentzahlen wie <code>5%</code> oder<code>1.23%</code> "
+"Aufschläge können <code>5</code> oder <code>5.95</code> sein. Ausserdem "
+"könne Sie durch Prozentzahlen wie <code>5%</code> oder<code>1.23%</code> "
 "ausgedrückt werden. \n"
 "Aufschläge können mit Plus<code>+5.95</code> oder Minus<code>-1.23%</code> "
-"dargestellt werden.<br/>Der Preisaufschlag wird während der "
+"dargestellt werden.<br/>Der Preiszuschlag wird während der "
 "Variationserstellung eines Produktes durch <em>Regulären Preis festlegen</em>"
 " und <em>Angebotspreis festlegen</em> im Hintergrund berechnet und "
 "festgelegt."
@@ -179,7 +179,7 @@ msgstr ""
 
 #: src/backend/settings.php:95
 msgid "Option Drop-down Behavior"
-msgstr "Drop-Down Verhalten "
+msgstr "Verhalten des Auswahlmenüs für Optionen"
 
 #: src/backend/settings.php:196
 msgid "Other"
@@ -200,7 +200,7 @@ msgid ""
 "down box is overwritten by another plugin or theme and markup is no longer "
 "visible."
 msgstr ""
-"Benennen Sie das Attribut um, um die Marge einzuschließen. Häufig "
+"Benennen Sie das Attribut um, um die Marge einzuschliessen. Häufig "
 "erforderlich, wenn das Options-Dropdown-Feld von einem anderen Plugin oder "
 "Theme überschrieben wird und die Marge nicht mehr sichtbar ist."
 
@@ -245,13 +245,12 @@ msgstr "Attribute in der Produktliste anzeigen"
 
 #: src/backend/settings.php:102
 msgid "Show the markup WITH the currency symbol in the options drop-down box."
-msgstr "Zeige den Preisaufschlag MIT dem Währungszeichen im Drop-Down-Feld an."
+msgstr "Zeige den Preiszuschlag MIT dem Währungszeichen im Drop-Down-Feld an."
 
 #: src/backend/settings.php:103
 msgid ""
 "Show the markup WITHOUT the currency symbol in the options drop-down box."
-msgstr ""
-"Zeige den Preisaufschlag OHNE das Währungszeichen im Drop-Down-Feld an."
+msgstr "Zeige den Preiszuschlag OHNE das Währungszeichen im Drop-Down-Feld an."
 
 #: src/backend/settings.php:181
 #| msgid ""

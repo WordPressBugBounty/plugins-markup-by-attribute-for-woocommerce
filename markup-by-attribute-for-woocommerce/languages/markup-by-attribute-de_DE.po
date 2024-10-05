@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Markup by Attribute for WooCommerce - MTB2 Tech\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: Markup by Attribute for WooCommerce - MT² Tech\n"
+"Report-Msgid-Bugs-To: markupbyattribute@mail.com\n"
 "POT-Creation-Date: 2020-04-17 00:43+0000\n"
-"PO-Revision-Date: 2024-10-04 02:17+0000\n"
+"PO-Revision-Date: 2024-10-05 03:35+0000\n"
 "Last-Translator: \n"
 "Language-Team: German\n"
 "Language: de_DE\n"
@@ -179,7 +179,7 @@ msgstr ""
 
 #: src/backend/settings.php:95
 msgid "Option Drop-down Behavior"
-msgstr "Drop-Down Verhalten "
+msgstr "Verhalten des Auswahlmenüs für Optionen"
 
 #: src/backend/settings.php:196
 msgid "Other"

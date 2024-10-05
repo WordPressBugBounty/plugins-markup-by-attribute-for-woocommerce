@@ -9,8 +9,8 @@ Contributors:           MarkTomlinson
 Donate link:            https://www.paypal.me/MT2Dev/5
 License:                GPLv3
 License URI:            https://www.gnu.org/licenses/gpl-3.0.html
-Version:                3.14
-Build:                  202440.01
+Version:                3.14.1
+Build:                  202440.02
 Stable tag:             trunk
 Tested up to:           6.6.2
 Requires at least:      4.6
@@ -133,12 +133,17 @@ If you use Markup by Attribute and want to see me continuing support for it, I e
 
 == Changelog ==
 
+= 3.14.1 =
+Build 202440.02
+* FIX: Removing `add_filter("plugin_action_links_" ... );` until I can determine why this disables the admin console in some WordPress configurations.
+
+
 = 3.14 =
 Build 202440.01
 * FEATURE: Optimized code; should run faster.
-* FEATURE: Added some Italian translations (Customer facing). Added more French, Swedish, and German translations.
+* FEATURE: Added some Italian translations (customer-facing). Added more French, Swedish, and German translations.
 * MAINTENANCE: Converted to use namespaces.
-* MAINTENANCE: Ensured compatibility with newest versions of WordPress, WooCommerce, and PHP.
+* MAINTENANCE: Ensured compatibility with the newest versions of WordPress, WooCommerce, and PHP.
 
 = 3.13.2 =
 Build 202428.02

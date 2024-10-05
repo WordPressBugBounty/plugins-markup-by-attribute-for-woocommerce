@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Markup by Attribute for WooCommerce - MTB2 Tech\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: Markup by Attribute for WooCommerce - MT² Tech\n"
+"Report-Msgid-Bugs-To: markupbyattribute@mail.com\n"
 "POT-Creation-Date: 2020-04-17 00:43+0000\n"
-"PO-Revision-Date: 2024-10-04 02:18+0000\n"
+"PO-Revision-Date: 2024-10-05 03:38+0000\n"
 "Last-Translator: \n"
 "Language-Team: German (Formal)\n"
 "Language: de_DE_formal\n"
@@ -29,7 +29,7 @@ msgstr "Zuzüglich %1$s für %2$s"
 
 #: src/backend/term.php:48
 msgid "Add Markup to Name?"
-msgstr "Einen Aufschlag zum Namen hinzufügen?"
+msgstr "Markup zum Namen hinzufügen?"
 
 #: src/backend/settings.php:121
 msgid "Add pricing information to the end of the existing description."
@@ -112,7 +112,7 @@ msgstr "MarkTomlinson"
 
 #: src/backend/term.php:82
 msgid "Markup"
-msgstr "Preis Auf"
+msgstr "Aufschlag"
 
 #: src/backend/term.php:46
 msgid "Markup (or markdown)"
@@ -179,7 +179,7 @@ msgstr ""
 
 #: src/backend/settings.php:95
 msgid "Option Drop-down Behavior"
-msgstr "Drop-Down Verhalten "
+msgstr "Verhalten des Auswahlmenüs für Optionen"
 
 #: src/backend/settings.php:196
 msgid "Other"
@@ -200,9 +200,9 @@ msgid ""
 "down box is overwritten by another plugin or theme and markup is no longer "
 "visible."
 msgstr ""
-"Benennen Sie das Attribut um, um den Aufschlag einzuschließen. Dies ist oft "
-"notwendig, wenn das Optionsfeld von einem anderen Plugin oder Theme "
-"überschrieben wird und der Aufschlag nicht mehr sichtbar ist."
+"Benennen Sie das Attribut um, um die Marge einzuschließen. Häufig "
+"erforderlich, wenn das Options-Dropdown-Feld von einem anderen Plugin oder "
+"Theme überschrieben wird und die Marge nicht mehr sichtbar ist."
 
 #: src/backend/settings.php:179
 msgid "Round Markup"
@@ -263,9 +263,9 @@ msgid ""
 "as xx.00 or xx.95). Rounding percentage markups will keep the value below "
 "the decimal intact."
 msgstr ""
-"Einige Geschäfte möchten Preise mit bestimmten Zahlen nach dem Dezimalpunkt "
-"(wie xx,00 oder xx,95). Durch das Runden von prozentualen Aufschlägen bleibt "
-"der Wert nach dem Dezimalpunkt unverändert."
+"Einige Shops möchten Preise mit bestimmten Zahlen nach dem Komma (wie xx,00 "
+"oder xx,95). Das Runden prozentualer Aufschläge behält den Wert nach dem "
+"Komma bei."
 
 #: src/utility/general.php:197
 #, php-format

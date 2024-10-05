@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Markup by Attribute for WooCommerce - MT² Tech\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: markupbyattribute@mail.com\n"
 "POT-Creation-Date: 2020-04-17 00:43+0000\n"
 "PO-Revision-Date: 2024-10-03 01:47+0000\n"
 "Last-Translator: \n"

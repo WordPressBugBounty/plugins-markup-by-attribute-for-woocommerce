@@ -7,7 +7,7 @@ use mt2Tech\MarkupByAttribute\Utility as Utility;
  * This file is part of the Markup by Attribute for WooCommerce plugin by Mark Tomlinson
  *
  * @package	markup-by-attribute-for-woocommerce
- * @version	3.14
+ * @version	3.14.1
  * @license	GPL-3.0+
  */
 
@@ -23,8 +23,8 @@ use mt2Tech\MarkupByAttribute\Utility as Utility;
  * License URI:				https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:				markup-by-attribute
  * Domain Path:				/languages
- * Version:					3.14
- * Build:					202440.01
+ * Version:					3.14.1
+ * Build:					202440.02
  * Stable tag:				trunk
  * Tested up to:			6.6.2
  * Requires at least:		4.6
@@ -55,7 +55,8 @@ function add_links($links) {
 	];
 	return array_merge($mt2mba_links, $links);
 }
-add_filter("plugin_action_links_" . plugin_basename(__FILE__), 'add_links');
+// Commenting out temporarily
+//add_filter("plugin_action_links_" . plugin_basename(__FILE__), 'add_links');
 
 /**
  * Enqueues custom admin stylesheet for WooCommerce product edit pages.
@@ -92,8 +93,8 @@ function mt2mba_main() {
 
 	// Set plugin information
 	define('MT2MBA_PLUGIN_PREFIX', 'MT2MBA');
-	define('MT2MBA_VERSION', '3.14');
-	define('MT2MBA_BUILD', 202440.01);
+	define('MT2MBA_VERSION', '3.14.1');
+	define('MT2MBA_BUILD', 202440.02);
 	define('MT2MBA_DB_VERSION', 2.1);
 	define('MT2MBA_SITE_URL', get_bloginfo('wpurl'));
 	define('MT2MBA_PLUGIN_DIR', plugin_dir_path(__FILE__));
@@ -118,7 +119,8 @@ function mt2mba_main() {
 	];
 
 	// Add settings and instruction links to plugin page
-	add_filter("plugin_action_links_", __NAMESPACE__ . '\add_links');
+	// Commenting out temporarily
+	//add_filter("plugin_action_links_", __NAMESPACE__ . '\add_links');
 
 	// Instantiate utility class
 	global $mt2mba_utility;
