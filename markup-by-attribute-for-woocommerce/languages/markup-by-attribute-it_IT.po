@@ -3,37 +3,37 @@ msgstr ""
 "Project-Id-Version: Markup by Attribute for WooCommerce - MT² Tech\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-04-17 00:43+0000\n"
-"PO-Revision-Date: 2024-10-03 01:47+0000\n"
+"PO-Revision-Date: 2024-10-03 01:27+0000\n"
 "Last-Translator: \n"
-"Language-Team: Swedish\n"
-"Language: sv_SE\n"
+"Language-Team: Italian\n"
+"Language: it_IT\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.6.10; wp-6.6-RC3"
+"X-Loco-Version: 2.6.11; wp-6.6.2"
 
 #: src/backend/term.php:50
 msgid "(Add"
-msgstr "(Lägg till"
+msgstr "(Aggiungi"
 
 #: src/backend/term.php:51
 msgid "(Subtract"
-msgstr "(Ta bort"
+msgstr "(Sottrai"
 
 #: src/utility/general.php:197
 #, php-format
 msgid "Add %1$s for %2$s"
-msgstr "Lägg till %1$s för %2$s"
+msgstr "Aggiungi %1$s per %2$s"
 
 #: src/backend/term.php:48
 msgid "Add Markup to Name?"
-msgstr "Lägg till påslag till namnet?"
+msgstr "Aggiungi il markup al nome?"
 
 #: src/backend/settings.php:121
 msgid "Add pricing information to the end of the existing description."
-msgstr "Lägg till prisinformation i slutet av den befintliga beskrivningen."
+msgstr ""
 
 #: src/backend/settings.php:72
 #, php-format
@@ -41,8 +41,6 @@ msgid ""
 "Additional help can be found in the <a href=\"%1$s\" target=\"_blank\">"
 "Markup by Attribute wiki</a> on the <code>Settings</code> page."
 msgstr ""
-"Ytterligare hjälp finns i <a href=\"%1$s\" target=\"_blank\">Markup by "
-"Attribute-wikin</a> på <code>inställningssidan</code>."
 
 #. Description of the plugin
 msgid "Adds product variation markup by attribute to WooCommerce."
@@ -76,7 +74,7 @@ msgstr ""
 
 #. URI of the plugin
 msgid "https://wordpress.org/plugins/markup-by-attribute-for-woocommerce/"
-msgstr "https://wordpress.org/plugins/markup-by-attribute-for-woocommerce/"
+msgstr ""
 
 #: src/backend/settings.php:76
 #, php-format
@@ -97,23 +95,23 @@ msgstr ""
 
 #. Author of the plugin
 msgid "MarkTomlinson"
-msgstr "MarkTomlinson"
+msgstr ""
 
 #: src/backend/term.php:82
 msgid "Markup"
-msgstr "Påslag"
+msgstr ""
 
 #: src/backend/term.php:46
 msgid "Markup (or markdown)"
-msgstr "Påslag (eller prisnedsättning)"
+msgstr "Maggiorazione (o sconto)"
 
 #: markup-by-attribute-for-woocommerce.php:102 src/backend/settings.php:51
 msgid "Markup by Attribute"
-msgstr "Markup by Attribute"
+msgstr ""
 
 #. Name of the plugin
 msgid "Markup by Attribute for WooCommerce"
-msgstr "Markup by Attribute for WooCommerce"
+msgstr ""
 
 #: src/backend/settings.php:68
 msgid "Markup by Attribute Settings"
@@ -132,6 +130,8 @@ msgid ""
 "Markup or markdown associated with this option. Signed, floating point "
 "numeric allowed."
 msgstr ""
+"Maggiorazione o sconto associati a questa opzione. È consentito un numero "
+"con segno e a virgola mobile."
 
 #: markup-by-attribute-for-woocommerce.php:107
 msgid "Markup:"
@@ -169,7 +169,7 @@ msgstr ""
 
 #: markup-by-attribute-for-woocommerce.php:103
 msgid "Product price"
-msgstr "Produktpris"
+msgstr "Prezzo del prodotto"
 
 #: src/backend/term.php:49
 msgid ""
@@ -177,6 +177,9 @@ msgid ""
 "down box is overwritten by another plugin or theme and markup is no longer "
 "visible."
 msgstr ""
+"Rinomina l'attributo per includere il markup. Spesso necessario se la "
+"casella a discesa delle opzioni viene sovrascritta da un altro plugin o tema "
+"e il markup non è più visibile."
 
 #: src/backend/settings.php:179
 msgid "Round Markup"
@@ -231,7 +234,7 @@ msgstr ""
 #: src/utility/general.php:197
 #, php-format
 msgid "Subtract %1$s for %2$s"
-msgstr "Ta bort %1$s för %2$s"
+msgstr "Sottrai %1$s per %2$s"
 
 #: src/backend/settings.php:70
 msgid ""
