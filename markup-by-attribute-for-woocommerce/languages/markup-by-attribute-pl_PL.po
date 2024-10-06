@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Markup by Attribute for WooCommerce - MT² Tech\n"
 "Report-Msgid-Bugs-To: markupbyattribute@mail.com\n"
 "POT-Creation-Date: 2020-04-17 00:43+0000\n"
-"PO-Revision-Date: 2024-10-04 02:05+0000\n"
+"PO-Revision-Date: 2024-10-05 23:21+0000\n"
 "Last-Translator: \n"
 "Language-Team: Polish\n"
 "Language: pl_PL\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.3.3; wp-5.4"
+"X-Loco-Version: 2.6.11; wp-6.6.2"
 
 #: src/backend/term.php:50
 msgid "(Add"
@@ -120,11 +120,11 @@ msgstr "Narzut (lub obniżka)"
 
 #: markup-by-attribute-for-woocommerce.php:102 src/backend/settings.php:51
 msgid "Markup by Attribute"
-msgstr "Markup by Attribute"
+msgstr "Markup-by-Attribute"
 
 #. Name of the plugin
 msgid "Markup by Attribute for WooCommerce"
-msgstr "Markup by Attribute for WooCommerce"
+msgstr "Markup-by-Attribute dla WooCommerce"
 
 #: src/backend/settings.php:68
 msgid "Markup by Attribute Settings"
@@ -320,5 +320,5 @@ msgid ""
 "You can always create more by running 'Create variations from all "
 "attributes' again."
 msgstr ""
-"Zawsze możesz utworzyć więcej, ponownie uruchamiając opcję 'Utwórz warianty "
-"ze wszystkich atrybutów'."
+"Zawsze możesz utworzyć więcej, ponownie uruchamiając opcję 'Wygeneruj "
+"warianty'."

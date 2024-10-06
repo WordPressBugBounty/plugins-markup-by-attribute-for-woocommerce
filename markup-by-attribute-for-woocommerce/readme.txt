@@ -9,8 +9,8 @@ Contributors:           MarkTomlinson
 Donate link:            https://www.paypal.me/MT2Dev/5
 License:                GPLv3
 License URI:            https://www.gnu.org/licenses/gpl-3.0.html
-Version:                3.14.1
-Build:                  202440.02
+Version:                3.14.2
+Build:                  202440.03
 Stable tag:             trunk
 Tested up to:           6.6.2
 Requires at least:      4.6
@@ -133,10 +133,10 @@ If you use Markup by Attribute and want to see me continuing support for it, I e
 
 == Changelog ==
 
-= 3.14.1 =
-Build 202440.02
-* FIX: Removing `add_filter("plugin_action_links_" ... );` until I can determine why this disables the admin console in some WordPress configurations.
-
+= 3.14.2 =
+Build 202440.03
+* FIX: Corrected error with plugin links that cause critical error in the admin console. 
+* MAINTENANCE: Cleaned up many translations.
 
 = 3.14 =
 Build 202440.01

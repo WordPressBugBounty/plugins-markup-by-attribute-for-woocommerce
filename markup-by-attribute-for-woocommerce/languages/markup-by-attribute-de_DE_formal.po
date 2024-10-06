@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Markup by Attribute for WooCommerce - MT² Tech\n"
 "Report-Msgid-Bugs-To: markupbyattribute@mail.com\n"
 "POT-Creation-Date: 2020-04-17 00:43+0000\n"
-"PO-Revision-Date: 2024-10-05 03:38+0000\n"
+"PO-Revision-Date: 2024-10-05 23:30+0000\n"
 "Last-Translator: \n"
 "Language-Team: German (Formal)\n"
 "Language: de_DE_formal\n"
@@ -29,7 +29,7 @@ msgstr "Zuzüglich %1$s für %2$s"
 
 #: src/backend/term.php:48
 msgid "Add Markup to Name?"
-msgstr "Markup zum Namen hinzufügen?"
+msgstr "Aufschlag zum Namen hinzufügen."
 
 #: src/backend/settings.php:121
 msgid "Add pricing information to the end of the existing description."
@@ -120,11 +120,11 @@ msgstr "Preis Auf (oder Abschlag)."
 
 #: markup-by-attribute-for-woocommerce.php:102 src/backend/settings.php:51
 msgid "Markup by Attribute"
-msgstr "Markup by Attribute"
+msgstr "Markup-by-Attribute"
 
 #. Name of the plugin
 msgid "Markup by Attribute for WooCommerce"
-msgstr "Markup by Attribute für WooCommerce"
+msgstr "Markup-by-Attribute für WooCommerce"
 
 #: src/backend/settings.php:68
 msgid "Markup by Attribute Settings"

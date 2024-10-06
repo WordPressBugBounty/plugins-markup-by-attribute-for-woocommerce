@@ -113,7 +113,7 @@ class Settings extends WC_Settings_API {
 			$mt2mba_settings[] = array(
 				'name'		=> __('Variation Description Behavior', 'markup-by-attribute'),
 				'desc'		=> __('How should Markup-by-Attribute handle adding price markup information to the product variation description?', 'markup-by-attribute') . '<br/>' .
-					'<em>' . __('This setting affects all products and takes effect immediately.', 'markup-by-attribute') . '</em>',
+					'<em>' . __('This setting affects products individually and takes effect when you recalculate the regular price for the product.', 'markup-by-attribute') . '</em>',
 				'id'		=> 'mt2mba_desc_behavior',
 				'type'		=> 'radio',
 				'options'	=> array(

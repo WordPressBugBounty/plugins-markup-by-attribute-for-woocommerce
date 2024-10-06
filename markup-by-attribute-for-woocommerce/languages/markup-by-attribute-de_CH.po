@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Markup by Attribute for WooCommerce - MT² Tech\n"
 "Report-Msgid-Bugs-To: markupbyattribute@mail.com\n"
 "POT-Creation-Date: 2020-04-17 00:43+0000\n"
-"PO-Revision-Date: 2024-10-05 03:37+0000\n"
+"PO-Revision-Date: 2024-10-05 23:29+0000\n"
 "Last-Translator: \n"
 "Language-Team: German (Switzerland)\n"
 "Language: de_CH\n"
@@ -29,7 +29,7 @@ msgstr "Zuzüglich %1$s für %2$s"
 
 #: src/backend/term.php:48
 msgid "Add Markup to Name?"
-msgstr "Markup zum Namen hinzufügen?"
+msgstr "Aufschlag zum Namen hinzufügen."
 
 #: src/backend/settings.php:121
 msgid "Add pricing information to the end of the existing description."
