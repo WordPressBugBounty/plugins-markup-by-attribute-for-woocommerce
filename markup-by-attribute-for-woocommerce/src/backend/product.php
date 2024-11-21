@@ -26,7 +26,7 @@ abstract class PriceMarkupHandler {
 	 * @param	float	$base_price		The base price of the product
 	 */
 	public function __construct($bulk_action, $product_id, $base_price) {
-
+		
 		// Create 'regular_price'	string	in one place
 		if (!defined('REGULAR_PRICE')) {
 			define('REGULAR_PRICE', 'regular_price');
@@ -83,37 +83,21 @@ class PriceSetHandler extends PriceMarkupHandler {
 	 * @return	array				The markup table
 	 */
 	protected function build_markup_table($terms, $product_id) {
-		global $mt2mba_utility, $wpdb;
+		global $mt2mba_utility;
 		$markup_table = [];
-
-		// Fetch all term meta in a single query
-		$term_ids = wp_list_pluck($terms, 'term_id');
-		$term_meta = $wpdb->get_results($wpdb->prepare(
-			"SELECT term_id, meta_key, meta_value FROM {$wpdb->termmeta}
-			WHERE term_id IN (" . implode(',', array_fill(0, count($term_ids), '%d')) . ")
-			AND meta_key = 'mt2mba_markup'",
-			$term_ids
-		), ARRAY_A);
-
-		// Populate term_meta_cache
-		$this->term_meta_cache = [];
-		foreach ($term_meta as $meta) {
-			$this->term_meta_cache[$meta['term_id']]['mt2mba_markup'] = $meta['meta_value'];
-		}
-
+	
 		// Calculate markup for each term for this product
 		foreach ($terms as $term) {
 			$meta_key = "mt2mba_{$term->term_id}_markup_amount";
-			$markup = isset($this->term_meta_cache[$term->term_id]['mt2mba_markup']) ?
-				$this->term_meta_cache[$term->term_id]['mt2mba_markup'] :
-				null;
+			$markup = get_term_meta($term->term_id, 'mt2mba_markup', true);
+	
 			// Set price to calculate markup against
 			if ($this->price_type === REGULAR_PRICE || MT2MBA_SALE_PRICE_MARKUP === 'yes') {
 				$price = $this->base_price;
 			} else {
 				$price = get_metadata("post", $product_id, "mt2mba_base_" . REGULAR_PRICE, true);
 			}
-
+	
 			if (!empty($markup)) {
 				if (strpos($markup, "%")) {
 					// Markup is a percentage
@@ -125,7 +109,7 @@ class PriceSetHandler extends PriceMarkupHandler {
 
 				// Round markup value
 				$markup_value = MT2MBA_ROUND_MARKUP == "yes" ? round($markup_value, 0) : round($markup_value, $this->price_decimals);
-
+	
 				if ($markup_value != 0) {
 					$markup_table[$term->taxonomy][$term->slug]['term_id'] = $term->term_id;
 					$markup_table[$term->taxonomy][$term->slug]['markup'] = $markup_value;
@@ -177,61 +161,92 @@ class PriceSetHandler extends PriceMarkupHandler {
 
 	/**
 	 * Perform bulk update of variation prices and descriptions.
+	 * Uses MySQL's handling of duplicate keys to effectively perform an UPSERT operation.
+	 * When inserting a duplicate (post_id, meta_key) pair, MySQL will update the existing value.
 	 *
-	 * @param	array	$updates	Array of updates to apply to variations
+	 * @param array $updates Array of updates to apply. Each element contains:
+	 *					  - id:		  (int)	Variation ID
+	 *					  - price:	   (float)  New price value
+	 *					  - description: (string) New variation description
 	 */
 	protected function bulk_variation_update($updates) {
 		global $wpdb;
-
+	
 		$variation_ids = [];
-		$price_updates = [];
+		$price_inserts = [];
 		$description_updates = [];
-
+	
+		// Build arrays for our SQL operations
 		foreach ($updates as $update) {
 			$variation_ids[] = (int)$update['id'];
-			$price_updates[] = $wpdb->prepare("WHEN %d THEN %01.{$this->price_decimals}f", $update['id'], $update['price']);
-			$description_updates[] = $wpdb->prepare("(%d, '_variation_description', %s)", $update['id'], $update['description']);
+			
+			// Each variation needs both '_price' and price type records
+			$price_inserts[] = $wpdb->prepare(
+				"(%d, %s, %01.{$this->price_decimals}f),
+				(%d, %s, %01.{$this->price_decimals}f)",
+				$update['id'], 
+				'_price',
+				$update['price'],
+				$update['id'], 
+				'_' . $this->price_type,
+				$update['price']
+			);
+	
+			if (isset($update['description'])) {
+				$description_updates[] = $wpdb->prepare(
+					"(%d, '_variation_description', %s)", 
+					$update['id'], 
+					$update['description']
+				);
+			}
 		}
-
-		// Start transaction
+	
+		// Start transaction for data consistency
 		$wpdb->query('START TRANSACTION');
-
+	
 		try {
-			if (!empty($price_updates)) {
-				// Bulk update prices
-				$wpdb->query($wpdb->prepare("
-					UPDATE {$wpdb->postmeta}
-					SET meta_value = CASE post_id
-						" . implode("\n", $price_updates) . "
-					END
-					WHERE post_id IN (" . implode(',', array_fill(0, count($variation_ids), '%d')) . ")
-					AND meta_key IN ('_price', '_{$this->price_type}')
-				", $variation_ids));
+			// Delete existing price records first
+			if (!empty($variation_ids)) {
+				$placeholders = array_fill(0, count($variation_ids), '%d');
+				$meta_keys = array('_price', '_' . $this->price_type);
+				
+				$wpdb->query($wpdb->prepare(
+					"DELETE FROM {$wpdb->postmeta} 
+					WHERE post_id IN (" . implode(',', $placeholders) . ")
+					AND meta_key IN (%s, %s)",
+					array_merge($variation_ids, $meta_keys)
+				));
 			}
-
-			if ($this->price_type === REGULAR_PRICE) {	// (Don't update descriptions or metadata for sale prices)
-				// Delete existing descriptions for all variations
-				$wpdb->query($wpdb->prepare("
-					DELETE FROM {$wpdb->postmeta}
-					WHERE post_id IN (" . implode(',', array_fill(0, count($variation_ids), '%d')) . ")
-					AND meta_key = '_variation_description'
-				", $variation_ids));
-
-				// Insert new descriptions for variations that have one
-				if (!empty($description_updates)) {
-					$wpdb->query("
-						INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value)
-						VALUES " . implode(', ', $description_updates)
-					);
-				}
+	
+			// Insert new price records
+			if (!empty($price_inserts)) {
+				$wpdb->query(
+					"INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) 
+					VALUES " . implode(", ", $price_inserts)
+				);
 			}
-
-			// Commit transaction
+	
+			// Handle descriptions for regular price updates
+			if ($this->price_type === REGULAR_PRICE && !empty($description_updates)) {
+				// Remove existing descriptions
+				$wpdb->query($wpdb->prepare(
+					"DELETE FROM {$wpdb->postmeta}
+					WHERE post_id IN (" . implode(',', array_fill(0, count($variation_ids), '%d')) . ")
+					AND meta_key = '_variation_description'",
+					$variation_ids
+				));
+	
+				// Insert new descriptions
+				$wpdb->query(
+					"INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value)
+					VALUES " . implode(", ", $description_updates)
+				);
+			}
+	
 			$wpdb->query('COMMIT');
-
+	
 		} catch (Exception $e) {
 			$wpdb->query('ROLLBACK');
-			error_log('Bulk variation update failed: ' . $e->getMessage());
 			throw $e;
 		}
 	}
@@ -344,7 +359,7 @@ class PriceUpdateHandler extends PriceMarkupHandler {
 	}
 
 	/**
-	 * Recalculate base price based on bulk action and markup.
+	 * reapply base price based on bulk action and markup.
 	 * @param	string	$bulk_action	The selection from the variation bulk actions menu.
 	 * @param	string	$markup			The amount or percentage to increase or decrease by.
 	 * @param	float	$base_price		The original base price that we are changing.
@@ -373,7 +388,7 @@ class PriceUpdateHandler extends PriceMarkupHandler {
 		// If base price metadata is present, that means the product contains variables with attribute pricing.
 		$base_price = get_metadata("post", $product_id, "mt2mba_base_{$this->price_type}", true);
 		if ($base_price) {
-			// Recalculate a new base price according to the bulk action.
+			// reapply a new base price according to the bulk action.
 			// Bulk action could be any of
 			//	 * variable_regular_price_increase
 			//	 * variable_regular_price_decrease
@@ -437,9 +452,137 @@ class Product {
 		if (!defined("WC_MAX_LINKED_VARIATIONS")) {
 			define("WC_MAX_LINKED_VARIATIONS", MT2MBA_MAX_VARIATIONS);
 		}
-
+	
 		// Hook mt2mba markup code into bulk actions
 		add_action("woocommerce_bulk_edit_variations", [$this, "mt2mba_apply_markup_to_price"], 10, 4);
+	
+		// Add action to enqueue reapply markup JavaScript
+		add_action('admin_enqueue_scripts', [$this, 'ajax_enqueue_reapply_markups_js']);
+		
+		// Add AJAX handlers for reapply markup
+		add_action('wp_ajax_mt2mba_reapply_markup', [$this, 'ajax_handle_reapply_markup'], 10, 1);
+	}
+
+	/**
+	 * Enqueue the reapply markup JavaScript file and required dependencies.
+	 * Sets up all necessary localization data including security nonces for both
+	 * our custom markup recalculation and WooCommerce's variation loading.
+	 *
+	 * @param string $hook The current admin page hook
+	 */
+	public function ajax_enqueue_reapply_markups_js($hook) {
+		// Only load on product edit page
+		if (!in_array($hook, ['post.php', 'post-new.php'])) {
+			return;
+		}
+		
+		// Only load for product post type
+		if (get_post_type() !== 'product') {
+			return;
+		}
+		
+		// Get the product
+		$product = wc_get_product(get_the_ID());
+		
+		// Only load for variable products
+		if ($product && $product->is_type('variable')) {
+			wp_enqueue_script(
+				'mt2mba-reapply-markup',
+				plugins_url('js/jq-mt2mba-reapply-markups-product.js', dirname(__FILE__)),
+				['jquery', 'wc-admin-variation-meta-boxes'],
+				MT2MBA_VERSION,
+				true
+			);
+	
+			// Get base price in store currency format
+			$base_price = get_post_meta($product->get_id(), 'mt2mba_base_regular_price', true);
+			$formatted_price = strip_tags(wc_price($base_price));
+
+			wp_localize_script(
+				'mt2mba-reapply-markup',
+				'mt2mbaLocal',
+				array(
+					'ajaxUrl' => admin_url('admin-ajax.php'),
+					'security' => wp_create_nonce('mt2mba_reapply_markup'),
+					'variationsNonce' => wp_create_nonce('load-variations'),
+					'basePrice' => $formatted_price,
+					'i18n' => array(
+						'reapplyMarkups' => __('Reapply markups to prices', 'markup-by-attribute'),
+						'confirmReapply' => __('Reprice variations at %s, plus or minus the markups?', 'markup-by-attribute'),
+						'failedRecalculating' => __('Failed to reapply markups. Please try again.', 'markup-by-attribute')
+					)
+				)
+			);
+		}
+	}
+
+	/**
+	 * Handle the AJAX request to reapply markup
+	 * 
+	 * @param int $product_id Optional product ID for bulk operations
+	 */
+	public function ajax_handle_reapply_markup() {
+		try {
+			// Basic validation checks
+			if (!check_ajax_referer('mt2mba_reapply_markup', 'security', false)) {
+				wp_send_json_error(['message' => __('Permission denied', 'markup-by-attribute')]);
+				return;
+			}
+			
+			if (!current_user_can('edit_products')) {
+				wp_send_json_error(['message' => __('Permission denied', 'markup-by-attribute')]);
+				return;
+			}
+	
+			// Get and validate product
+			$product_id = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
+			if (!$product_id || !($product = wc_get_product($product_id)) || !$product->is_type('variable')) {
+				wp_send_json_error(['message' => __('Invalid product ID', 'markup-by-attribute')]);
+				return;
+			}
+	
+			// Start transaction
+			global $wpdb;
+			$wpdb->query('START TRANSACTION');
+	
+			try {
+				// Process variations
+				$variations = $product->get_children();
+				if (!empty($variations)) {
+					// Handle regular price
+					$base_regular_price = get_post_meta($product_id, 'mt2mba_base_regular_price', true);
+					$data = ['value' => $base_regular_price];
+					$handler = new PriceSetHandler('variable_regular_price', $data, $product_id, $variations);
+					$handler->applyMarkup('variable_regular_price', $data, $product_id, $variations);
+	
+					// Handle sale price if it exists
+					$base_sale_price = get_post_meta($product_id, 'mt2mba_base_sale_price', true);
+					if (!empty($base_sale_price)) {
+						$data = ['value' => $base_sale_price];
+						$handler = new PriceSetHandler('variable_sale_price', $data, $product_id, $variations);
+						$handler->applyMarkup('variable_sale_price', $data, $product_id, $variations);
+					}
+				}
+	
+				$wpdb->query('COMMIT');
+				
+				// Clear caches
+				wp_cache_flush();
+				clean_post_cache($product_id);
+				foreach ($variations as $variation_id) {
+					clean_post_cache($variation_id);
+				}
+	
+				wp_send_json_success(['completed' => true]);
+	
+			} catch (Exception $e) {
+				$wpdb->query('ROLLBACK');
+				throw $e;
+			}
+	
+		} catch (Exception $e) {
+			wp_send_json_error(['message' => $e->getMessage()]);
+		}
 	}
 
 	/**
@@ -450,7 +593,6 @@ class Product {
 	 * @param	array	$variations		List of variation IDs for the variable product.
 	 */
 	public function mt2mba_apply_markup_to_price($bulk_action, $data, $product_id, $variations) {
-
 		// Determine which class should extend PriceMarkupHandler based on the bulk_action
 		if ($bulk_action == "variable_regular_price" || $bulk_action == "variable_sale_price") {
 			// Set either the regular price or the sale price
@@ -470,8 +612,7 @@ class Product {
 		}
 
 		// Invoke the applyMarkup() function from the class that was decided above
-		$handler->applyMarkup((string) $bulk_action, (array) $data, (string) $product_id, (array) $variations
-		);
+		$handler->applyMarkup((string) $bulk_action, (array) $data, (string) $product_id, (array) $variations);
 	}
 }
 ?>
