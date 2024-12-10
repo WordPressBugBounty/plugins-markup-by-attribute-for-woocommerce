@@ -42,10 +42,11 @@ class General {
 			$settings = Backend\Settings::get_instance();
 			define('MT2MBA_DESC_BEHAVIOR', get_option('mt2mba_desc_behavior', $settings->desc_behavior));
 			define('MT2MBA_DROPDOWN_BEHAVIOR', get_option('mt2mba_dropdown_behavior', $settings->dropdown_behavior));
+			define('MT2MBA_INCLUDE_ATTRB_NAME', get_option('mt2mba_include_attrb_name', $settings->include_attrb_name));
 			define('MT2MBA_HIDE_BASE_PRICE', get_option('mt2mba_hide_base_price', $settings->hide_base_price));
 			define('MT2MBA_SALE_PRICE_MARKUP', get_option('mt2mba_sale_price_markup', $settings->sale_price_markup));
 			define('MT2MBA_ROUND_MARKUP', get_option('mt2mba_round_markup', $settings->round_markup));
-			define('MT2MBA_SHOW_ATTRB_LIST', get_option('mt2mba_show_attrb_list', $settings->show_attrb_list));
+			define('MT2MBA_ALLOW_ZERO', get_option('mt2mba_allow_zero', $settings->allow_zero));
 			define('MT2MBA_MAX_VARIATIONS', get_option('mt2mba_max_variations', $settings->max_variations));
 			define('MT2MBA_CURRENCY_SYMBOL', get_woocommerce_currency_symbol(get_woocommerce_currency()));
 		}
@@ -106,14 +107,16 @@ class General {
 					$last_parent_id = $v_product['post_parent'];
 				}
 			}
+			// Clean database for conversion from version 2.3.
+			$wpdb->delete("{$wpdb->prefix}options", array('option_name'=>'mt2mba_decimal_points'));
+			$wpdb->delete("{$wpdb->prefix}options", array('option_name'=>'mt2mba_symbol_before'));
+			$wpdb->delete("{$wpdb->prefix}options", array('option_name'=>'mt2mba_symbol_after'));
 		}
 
-		// -----------------------------------------------
-		// Clean database for conversion from version 2.3.
-		// -----------------------------------------------
-		$wpdb->delete("{$wpdb->prefix}options", array('option_name'=>'mt2mba_decimal_points'));
-		$wpdb->delete("{$wpdb->prefix}options", array('option_name'=>'mt2mba_symbol_before'));
-		$wpdb->delete("{$wpdb->prefix}options", array('option_name'=>'mt2mba_symbol_after'));
+		//	Delete discontinued setting, mt2mba_show_attrb_list
+		if($current_db_version < 2.2) {
+			$wpdb->delete("{$wpdb->prefix}options", array('option_name'=>'mt2mba_show_attrb_list'));
+		}
 
 		// Made it this far, update database version
 		update_option('mt2mba_db_version', MT2MBA_DB_VERSION);
@@ -186,23 +189,43 @@ class General {
 	}
 
 	/**
-	 * Format the markup that appears in the variation description
-	 * @param	float	$markup Signed markup amount
-	 * @param	string	$term	Attribute term the markup applies to
-	 * @return	string			Formatted markup
+	 * Format the add and subtract line items that appears in the variation description
+	 * @param float  $markup	 Signed markup amount
+	 * @param string $attrb_name Attribute name that the markup applies to
+	 * @param string $term_name  Attribute term that the markup applies to
+	 * @return string		   Formatted description 
 	 */
-	function format_description_markup($markup, $term_name) {
+	function format_description_markup($markup, $attrb_name, $term_name) {
 		if ($markup <> "" && $markup <> 0) {
-			// Translators; %1$s is the formated price of the option, %2$s is the option name
-			$desc_format = $markup < 0 ? __('Subtract %1$s for %2$s', 'markup-by-attribute') : __('Add %1$s for %2$s', 'markup-by-attribute');
-
-			return html_entity_decode (
-				sprintf (
-					$desc_format,
-					$this->clean_up_price($markup),
-					trim($this->remove_bracketed_string(' (', ')', $term_name))
-				)
-			);
+			// Two different translation strings based on whether attribute name is included
+			if (MT2MBA_INCLUDE_ATTRB_NAME == 'yes') {
+				// Translators; %1$s is the formatted price, %2$s is the attribute name, %3$s is the term name
+				$desc_format = $markup < 0 ? 
+					__('Subtract %1$s for %2$s: %3$s', 'markup-by-attribute') : 
+					__('Add %1$s for %2$s: %3$s', 'markup-by-attribute');
+				
+				return html_entity_decode(
+					sprintf(
+						$desc_format,
+						$this->clean_up_price($markup),
+						$attrb_name,
+						$term_name
+					)
+				);
+			} else {
+				// Translators; %1$s is the formatted price, %2$s is the term name
+				$desc_format = $markup < 0 ? 
+					__('Subtract %1$s for %2$s', 'markup-by-attribute') : 
+					__('Add %1$s for %2$s', 'markup-by-attribute');
+				
+				return html_entity_decode(
+					sprintf(
+						$desc_format,
+						$this->clean_up_price($markup),
+						$term_name
+					)
+				);
+			}
 		}
 		// No markup; return empty string
 		return '';

@@ -15,10 +15,11 @@ class Settings extends WC_Settings_API {
 	// Default values as properties
 	public $desc_behavior		= 'append';
 	public $dropdown_behavior	= 'add';
+	public $include_attrb_name	= 'no';
 	public $hide_base_price		= 'no';
 	public $sale_price_markup	= 'yes';
 	public $round_markup		= 'no';
-	public $show_attrb_list		= 'no';
+	public $allow_zero			= 'no';
 	public $max_variations		= 50;
 
 	// Public method to get the instance
@@ -128,6 +129,18 @@ class Settings extends WC_Settings_API {
 				'default'	=> $this->desc_behavior
 			);
 
+			/** -- Include Attribute Name --
+			 *	Include the name of the attribute in the variatiable product's decription. 'Add $1.50 for Blue' becomes 'Add $1.50 for Color Blue'.
+			 */
+			$mt2mba_settings[] = array(
+				'name'		=> __('Include Attribute Names in Variation Descriptions', 'markup-by-attribute'),
+				'desc'		=> __("Include the name of the attribute in the variable product's description. <b>Add $1.50 for Blue</b> becomes <b>Add $1.50 for Color: Blue</b>.", 'markup-by-attribute') . ' <br/>' .
+					'<em>' . $individually . '</em>',
+				'id'		=> 'mt2mba_include_attrb_name',
+				'type'		=> 'checkbox',
+				'default'	=> $this->include_attrb_name
+			);
+
 			/** -- Hide Base Price --
 			 *	Do NOT show the base price in the product description.
 			 *	This setting affects products individually and takes effect when you recalculate the regular price
@@ -188,6 +201,23 @@ class Settings extends WC_Settings_API {
 				'default'	=> $this->round_markup
 			);
 
+			/** -- Allow Zero Base Price --
+			 *  Should Markup-by-Attribute process variations with zero base price?
+			 *  Some stores use markups to set the entire price, setting the base price to zero.
+			 *  Others want zero-priced variations to remain at zero for giveaways. This setting
+			 *  lets you choose which behavior you want.
+			 */
+			$mt2mba_settings[] = array(
+				'name'    => __('Allow Zero Price', 'markup-by-attribute'),
+				'desc'    => __('Should Markup-by-Attribute ignore variations with a zero price?', 'markup-by-attribute') . '<br/>' .
+					__('When set OFF, markup calculations proceed normally even when the base price is zero. This allows using attributes to determine the entire price.', 'markup-by-attribute') . '<br/>' .
+					__('When set ON, variations with zero prices remain at zero, ignoring any markups. This preserves zero prices for giveaway items.', 'markup-by-attribute') . ' <br/>' .
+					'<em>' . $individually . '</em>',
+				'id'      => 'mt2mba_allow_zero',
+				'type'    => 'checkbox',
+				'default' => $this->allow_zero
+			);
+
 			$mt2mba_settings[] = array(
 				'type'		=> 'sectionend',
 				'id'		=> 'mt2mba_calc'
@@ -198,20 +228,6 @@ class Settings extends WC_Settings_API {
 				'name'		=> __('Other', 'markup-by-attribute'),
 				'type'		=> 'title',
 				'id'		=> 'mt2mba_other'
-			);
-
-			/** -- Show Attributes on Product List --
-			 *	Include a column on the 'All Products' page to show all attributes associated with the products?
-			 *	When set on, you can filter by attribute, making it easier to find products that contain attributes
-			 *	you may have changed.
-			 */
-			$mt2mba_settings[] = array(
-				'name'		=> __('Show Attributes on Product List', 'markup-by-attribute'),
-				'desc'		=> __('Include a column on the \'All Products\' page to show all attributes associated with the products?', 'markup-by-attribute') . '<br/>' .
-					__("When set on, you can filter by attribute, making it easier to find products that contain attributes you may have changed.", 'markup-by-attribute'),
-				'id'		=> 'mt2mba_show_attrb_list',
-				'type'		=> 'checkbox',
-				'default'	=> $this->show_attrb_list
 			);
 
 			/** -- Max Variations --

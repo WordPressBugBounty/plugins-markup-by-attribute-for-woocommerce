@@ -77,44 +77,56 @@ class PriceSetHandler extends PriceMarkupHandler {
 
 	/**
 	 * Build a table of markup values for the product.
-	 *
-	 * @param	array	$terms		The terms associated with the product
-	 * @param	int		$product_id	The ID of the product
-	 * @return	array				The markup table
+	 * 
+	 * @param array $attribute_data Array of attributes with their labels and terms
+	 * @param int   $product_id	The ID of the product
+	 * @return array The markup table
 	 */
-	protected function build_markup_table($terms, $product_id) {
+	protected function build_markup_table($attribute_data, $product_id) {
 		global $mt2mba_utility;
 		$markup_table = [];
-	
+
 		// Calculate markup for each term for this product
-		foreach ($terms as $term) {
-			$meta_key = "mt2mba_{$term->term_id}_markup_amount";
-			$markup = get_term_meta($term->term_id, 'mt2mba_markup', true);
-	
-			// Set price to calculate markup against
-			if ($this->price_type === REGULAR_PRICE || MT2MBA_SALE_PRICE_MARKUP === 'yes') {
-				$price = $this->base_price;
-			} else {
-				$price = get_metadata("post", $product_id, "mt2mba_base_" . REGULAR_PRICE, true);
-			}
-	
-			if (!empty($markup)) {
-				if (strpos($markup, "%")) {
-					// Markup is a percentage
-					$markup_value = ($price * floatval($markup)) / 100;
+		foreach ($attribute_data as $taxonomy => $data) {
+			$attrb_label = $data['label'];
+			foreach ($data['terms'] as $term) {
+				$markup = get_term_meta($term->term_id, 'mt2mba_markup', true);
+
+				// Set price to calculate markup against
+				if ($this->price_type === REGULAR_PRICE || MT2MBA_SALE_PRICE_MARKUP === 'yes') {
+					$price = $this->base_price;
 				} else {
-					// Markup is a flat amount
-					$markup_value = floatval($markup);
+					$price = get_metadata("post", $product_id, "mt2mba_base_" . REGULAR_PRICE, true);
 				}
 
-				// Round markup value
-				$markup_value = MT2MBA_ROUND_MARKUP == "yes" ? round($markup_value, 0) : round($markup_value, $this->price_decimals);
-	
-				if ($markup_value != 0) {
-					$markup_table[$term->taxonomy][$term->slug]['term_id'] = $term->term_id;
-					$markup_table[$term->taxonomy][$term->slug]['markup'] = $markup_value;
-					if (MT2MBA_DESC_BEHAVIOR !== "ignore" && $this->price_type === REGULAR_PRICE) {
-						$markup_table[$term->taxonomy][$term->slug]['description'] = $mt2mba_utility->format_description_markup($markup_value, $term->name);
+				if (!empty($markup)) {
+					if (strpos($markup, "%")) {
+						// Markup is a percentage
+						$markup_value = ($price * floatval($markup)) / 100;
+					} else {
+						// Markup is a flat amount
+						$markup_value = floatval($markup);
+					}
+
+					// Round markup value
+					$markup_value = MT2MBA_ROUND_MARKUP == "yes" ? 
+						round($markup_value, 0) : 
+						round($markup_value, $this->price_decimals);
+
+					if ($markup_value != 0) {
+						$markup_table[$taxonomy][$term->slug] = [
+							'term_id' => $term->term_id,
+							'markup' => $markup_value,
+						];
+						
+						if (MT2MBA_DESC_BEHAVIOR !== "ignore" && $this->price_type === REGULAR_PRICE) {
+							$markup_table[$taxonomy][$term->slug]['description'] = 
+								$mt2mba_utility->format_description_markup(
+									$markup_value,
+									$attrb_label, 
+									$term->name
+								);
+						}
 					}
 				}
 			}
@@ -164,10 +176,10 @@ class PriceSetHandler extends PriceMarkupHandler {
 	 * Uses MySQL's handling of duplicate keys to effectively perform an UPSERT operation.
 	 * When inserting a duplicate (post_id, meta_key) pair, MySQL will update the existing value.
 	 *
-	 * @param array $updates Array of updates to apply. Each element contains:
-	 *					  - id:		  (int)	Variation ID
-	 *					  - price:	   (float)  New price value
-	 *					  - description: (string) New variation description
+	 * @param	array	$updates	Array of updates to apply. Each element contains:
+	 *								- id:			(int)		Variation ID
+	 *								- price:		(float)		New price value
+	 *								- description:	(string)	New variation description
 	 */
 	protected function bulk_variation_update($updates) {
 		global $wpdb;
@@ -179,11 +191,16 @@ class PriceSetHandler extends PriceMarkupHandler {
 		// Build arrays for our SQL operations
 		foreach ($updates as $update) {
 			$variation_ids[] = (int)$update['id'];
-			
+
+			// Reformat price if not null
+			if ($update['price'] !== null) {
+				$update['price'] = number_format($update['price'], $this->price_decimals, '.', '');
+			}
+
 			// Each variation needs both '_price' and price type records
 			$price_inserts[] = $wpdb->prepare(
-				"(%d, %s, %01.{$this->price_decimals}f),
-				(%d, %s, %01.{$this->price_decimals}f)",
+				"(%d, %s, %s),
+				(%d, %s, %s)",
 				$update['id'], 
 				'_price',
 				$update['price'],
@@ -191,7 +208,7 @@ class PriceSetHandler extends PriceMarkupHandler {
 				'_' . $this->price_type,
 				$update['price']
 			);
-	
+
 			if (isset($update['description'])) {
 				$description_updates[] = $wpdb->prepare(
 					"(%d, '_variation_description', %s)", 
@@ -200,7 +217,7 @@ class PriceSetHandler extends PriceMarkupHandler {
 				);
 			}
 		}
-	
+
 		// Start transaction for data consistency
 		$wpdb->query('START TRANSACTION');
 	
@@ -272,18 +289,23 @@ class PriceSetHandler extends PriceMarkupHandler {
 			return;
 		}
 
-		// Retrieve all attributes for the product
-		$all_terms = [];
+		// Retrieve all attributes and their terms for the product
+		$attribute_data = [];
 		foreach (wc_get_product($product_id)->get_attributes() as $pa_attrb) {
 			if ($pa_attrb->is_taxonomy()) {
 				$taxonomy = $pa_attrb->get_name();
-				$terms = get_terms(["taxonomy" => $taxonomy, "hide_empty" => false]);
-				$all_terms = array_merge($all_terms, $terms);
+				$attribute_data[$taxonomy] = [
+					'label' => wc_attribute_label($taxonomy),
+					'terms' => get_terms([
+						"taxonomy" => $taxonomy, 
+						"hide_empty" => false
+					])
+				];
 			}
 		}
 
 		// Build a table of the markup values for the product
-		$markup_table = $this->build_markup_table($all_terms, $product_id);
+		$markup_table = $this->build_markup_table($attribute_data, $product_id);
 
 		// Bulk save product markup values
 		if ($this->price_type === REGULAR_PRICE) {
@@ -291,16 +313,40 @@ class PriceSetHandler extends PriceMarkupHandler {
 		}
 
 		// Save new base price
-		update_post_meta($product_id, "mt2mba_base_{$this->price_type}", round($this->base_price, $this->price_decimals));
+		$rounded_base = round($this->base_price, $this->price_decimals);
+		update_post_meta($product_id, "mt2mba_base_{$this->price_type}", $rounded_base);
+		if ($this->price_type === REGULAR_PRICE) {
+			//	Store the current base price in a transient
+			set_transient('mt2mba_current_base_' . $product_id, $rounded_base, HOUR_IN_SECONDS);
+		}
 
-		// Format the base price description for the variations
+		//	Format the base price description for the variations
 		$base_price_description = MT2MBA_HIDE_BASE_PRICE === 'no' ? html_entity_decode(MT2MBA_PRICE_META . $this->base_price_formatted) : '';
 
-		// Set up table with variation prices
+		//	Set up table with variation prices
 		$variation_updates = [];
 		foreach ($variations as $variation_id) {
 			$variation = wc_get_product($variation_id);
+
+			// If base price is intentionally set to exactly zero...
+			if ($this->base_price == 0 && MT2MBA_ALLOW_ZERO === 'yes') {
+				// Clean up any existing markup description
+					$description = "";
+					if ($this->price_type === REGULAR_PRICE) {
+						$description = $variation->get_description();
+						$description = $mt2mba_utility->remove_bracketed_string(PRODUCT_MARKUP_DESC_BEG, PRODUCT_MARKUP_DESC_END, $description);
+					}
+
+					$variation_updates[] = [
+						'id' => $variation_id,
+						'price' => 0,
+						'description' => trim($description)
+					];
+					continue;    // Exit loop and go onto the next variation
+			}
+
 			$variation_price = $this->base_price;
+
 			$markup_description = '';
 			$attributes = $variation->get_attributes();
 			foreach ($attributes as $attribute_id => $term_id) {
@@ -311,28 +357,32 @@ class PriceSetHandler extends PriceMarkupHandler {
 						$markup_description .= PHP_EOL . $markup_table[$attribute_id][$term_id]["description"];
 					}
 				}
+			}	//	END: foreach ($attributes as $attribute_id => $term_id)
+
+			//	Set variation price to null if negative, allow zero pricing
+			if ($variation_price < 0) {
+				$variation_price = null;
 			}
 
-			$variation_price = max($variation_price, 0);
-
+			// Set the description
 			$description = "";
 			if ($this->price_type === REGULAR_PRICE) {
 				if (MT2MBA_DESC_BEHAVIOR !== "overwrite") {
 					$description = $variation->get_description();
 					$description = $mt2mba_utility->remove_bracketed_string(PRODUCT_MARKUP_DESC_BEG, PRODUCT_MARKUP_DESC_END, $description);
 				}
-
-				if ($markup_description) {
+				if ($markup_description && $variation_price != null) {
 					$description .= PHP_EOL . PRODUCT_MARKUP_DESC_BEG . $base_price_description . $markup_description . PRODUCT_MARKUP_DESC_END;
 				}
 			}
 
+			// And plug it into the $variation_updates array
 			$variation_updates[] = [
 				'id' => $variation_id,
 				'price' => $variation_price,
 				'description' => trim($description)
 			];
-		}
+		}	// END: foreach ($variations as $variation_id)
 
 		// Bulk update all variations from the variations_update table
 		if (!empty($variation_updates)) {
@@ -340,6 +390,7 @@ class PriceSetHandler extends PriceMarkupHandler {
 			$this->bulk_variation_update($variation_updates);
 		}
 	}
+
 }
 
 /**
@@ -461,6 +512,9 @@ class Product {
 		
 		// Add AJAX handlers for reapply markup
 		add_action('wp_ajax_mt2mba_reapply_markup', [$this, 'ajax_handle_reapply_markup'], 10, 1);
+
+		// In Product class constructor
+		add_action('wp_ajax_mt2mba_get_formatted_price', [$this, 'ajax_get_formatted_price']);
 	}
 
 	/**
@@ -505,7 +559,6 @@ class Product {
 					'ajaxUrl' => admin_url('admin-ajax.php'),
 					'security' => wp_create_nonce('mt2mba_reapply_markup'),
 					'variationsNonce' => wp_create_nonce('load-variations'),
-					'basePrice' => $formatted_price,
 					'i18n' => array(
 						'reapplyMarkups' => __('Reapply markups to prices', 'markup-by-attribute'),
 						'confirmReapply' => __('Reprice variations at %s, plus or minus the markups?', 'markup-by-attribute'),
@@ -566,11 +619,34 @@ class Product {
 	
 				$wpdb->query('COMMIT');
 				
-				// Clear caches
+				// Clear WordPress cache
 				wp_cache_flush();
 				clean_post_cache($product_id);
-				foreach ($variations as $variation_id) {
-					clean_post_cache($variation_id);
+				
+				// Clear WooCommerce specific caches
+				wc_delete_product_transients($product_id);
+				if (!empty($variations)) {
+					foreach ($variations as $variation_id) {
+						clean_post_cache($variation_id);
+						wc_delete_product_transients($variation_id);
+					}
+				}
+				
+				// Clear variable product price cache
+				delete_transient('wc_var_prices_' . $product_id);
+				
+				// Delete WooCommerce's variation parent price meta
+				delete_post_meta($product_id, '_price');
+				delete_post_meta($product_id, '_min_variation_price');
+				delete_post_meta($product_id, '_max_variation_price');
+				delete_post_meta($product_id, '_min_variation_regular_price');
+				delete_post_meta($product_id, '_max_variation_regular_price');
+				delete_post_meta($product_id, '_min_variation_sale_price');
+				delete_post_meta($product_id, '_max_variation_sale_price');
+	
+				// Force WooCommerce to recalculate prices
+				if (class_exists('\WC_Product_Variable')) {
+					\WC_Product_Variable::sync($product_id);
 				}
 	
 				wp_send_json_success(['completed' => true]);
@@ -583,6 +659,27 @@ class Product {
 		} catch (Exception $e) {
 			wp_send_json_error(['message' => $e->getMessage()]);
 		}
+	}
+
+	public function ajax_get_formatted_price() {
+		check_ajax_referer('mt2mba_reapply_markup', 'security');
+		
+		$product_id = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
+		if (!$product_id) {
+			wp_send_json_error();
+			return;
+		}
+	
+		// Check transient first
+		$base_price = get_transient('mt2mba_current_base_' . $product_id);
+		if ($base_price === false) {
+			// Fall back to stored meta
+			$base_price = get_post_meta($product_id, 'mt2mba_base_regular_price', true);
+		}
+	
+		wp_send_json_success([
+			'formatted_price' => html_entity_decode(strip_tags(wc_price($base_price)))
+		]);
 	}
 
 	/**

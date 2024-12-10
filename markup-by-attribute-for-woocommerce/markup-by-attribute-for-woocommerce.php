@@ -1,14 +1,14 @@
 <?php
 namespace mt2Tech\MarkupByAttribute;
-use mt2Tech\MarkupByAttribute\Backend as Backend;
-use mt2Tech\MarkupByAttribute\Frontend as Frontend;
-use mt2Tech\MarkupByAttribute\Utility as Utility;
+use mt2Tech\MarkupByAttribute\Backend	as Backend;
+use mt2Tech\MarkupByAttribute\Frontend	as Frontend;
+use mt2Tech\MarkupByAttribute\Utility	as Utility;
 /**
  * This file is part of the Markup by Attribute for WooCommerce plugin by Mark Tomlinson
  *
  * @package	markup-by-attribute-for-woocommerce
- * @version	4.0.2
- * @license	GPL-3.0+
+ * @version	4.2
+ * @license	GPL-2.0+
  */
 
 /**
@@ -20,17 +20,17 @@ use mt2Tech\MarkupByAttribute\Utility as Utility;
  * Contributors:			MarkTomlinson
  * Donate link:				https://www.paypal.me/MT2Dev/5
  * License:					GPLv3
- * License URI:				https://www.gnu.org/licenses/gpl-3.0.html
+ * License URI:				https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:				markup-by-attribute
  * Domain Path:				/languages
- * Version:					4.0.2
- * Build:					202447.05
+ * Version:					4.2
+ * Build:					202449.03
  * Stable tag:				trunk
- * Tested up to:			6.7
+ * Tested up to:			6.7.1
  * Requires at least:		4.6
- * PHP tested up to:		8.3.13
+ * PHP tested up to:		8.3.14
  * Requires PHP:			5.6
- * WC tested up to:			9.4.2
+ * WC tested up to:			9.4.3
  * WC requires at least:	3.0
  * MySQL tested up to:		8.0.40
  */
@@ -93,9 +93,9 @@ function mt2mba_main() {
 
 	// Set plugin information
 	define('MT2MBA_PLUGIN_PREFIX', 'MT2MBA');
-	define('MT2MBA_VERSION', '4.0.2');
-	define('MT2MBA_BUILD', 202447.05);
-	define('MT2MBA_DB_VERSION', 2.1);
+	define('MT2MBA_VERSION', '4.2');
+	define('MT2MBA_BUILD', 202449.03);
+	define('MT2MBA_DB_VERSION', 2.2);
 	define('MT2MBA_SITE_URL', get_bloginfo('wpurl'));
 	define('MT2MBA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 	define('MT2MBA_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -111,10 +111,14 @@ function mt2mba_main() {
 
 	$admin_messages = [
 		'info' => [
-			// Add any informational messages here
+			/* Add administrative info messages in the following format
+			 *
+			array("message_name", "This is a dismissable messages."),
+			 *
+			 */
 		],
 		'warning' => [
-			// Add any warning messages here
+			/* Add any warning messages here in the above format */
 		]
 	];
 
@@ -129,10 +133,9 @@ function mt2mba_main() {
 
 		Utility\Pointers::get_instance();
 		Backend\Term::get_instance();
-		if (defined('MT2MBA_SHOW_ATTRB_LIST') && MT2MBA_SHOW_ATTRB_LIST === 'yes') {
-			Backend\ProductList::get_instance();
-		}
+		Backend\ProductList::get_instance();
 		new Backend\Product;	// Product class cannot be singleton
+
 	} else {
 		// -- Front end code --
 		Frontend\Options::get_instance();
