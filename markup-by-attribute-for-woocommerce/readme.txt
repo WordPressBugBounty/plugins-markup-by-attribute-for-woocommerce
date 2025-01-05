@@ -9,8 +9,8 @@ Contributors:			MarkTomlinson
 Donate link:			https://www.paypal.me/MT2Dev/5
 License:				GPLv3
 License URI:			https://www.gnu.org/licenses/gpl-3.0.html
-Version:				4.3
-Build:					202501.01
+Version:				4.3.1
+Build:					202501.02
 Stable tag:				trunk
 Tested up to:			6.7.1
 Requires at least:		4.6
@@ -186,6 +186,12 @@ If you use Markup-by-Attribute and want to see me continuing support for it, I e
 7. The settings page allows configuration of how the markup is displayed.
 
 == Changelog ==
+= 4.3.1 =
+*Release Date: January 2025*
+
+**Bug Fixes**
+* Corrected logic for stripping the markup out of the option dropdown
+
 = 4.3 =
 *Release Date: January 2025*
 
@@ -198,7 +204,6 @@ If you use Markup-by-Attribute and want to see me continuing support for it, I e
 **Maintenance**
 * Restructured code for better performance and maintainability
 * Updated compatibility with WooCommerce 9.5.1
-* Improved HPOS support
 
 **Bug Fixes**
 * Changed version checking on startup to reduce false positives

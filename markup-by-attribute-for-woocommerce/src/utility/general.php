@@ -243,7 +243,6 @@ class General {
 	 */
 	public function stripMarkupAnnotation($text) {
 		// Pattern for numbers that handles international formats
-//		$number_pattern = '(?:[\p{Sc}\s]*[0-9]+(?:[.,][0-9]+)*(?:[.,][0-9]{2})?[\p{Sc}\s]*|[0-9]+(?:[.,][0-9]+)*%)';
 		$number_pattern = '[0-9.,\s%\p{Sc}A-Z]*';
 
 		// Convert Add and Subtract constants to regex with international number pattern

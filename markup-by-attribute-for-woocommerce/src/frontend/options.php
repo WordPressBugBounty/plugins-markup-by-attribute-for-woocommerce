@@ -55,37 +55,26 @@ class Options {
 			));
 			return $html;
 		}
+
 		// Exit early based on specific conditions
 		if (
-			// Don't overwrite if don't-overwrite-flag is set for the attribute
+			// Don't overwrite if don't-overwrite-theme flag is set for the attribute
 			get_option(DONT_OVERWRITE_THEME_PREFIX . $attribute_id) == 'yes' || 
 			
 			// Prevent duplicate markup in dropdowns if markup is already in the name
-			get_option(REWRITE_TERM_NAME_PREFIX . wc_attribute_taxonomy_id_by_name($attribute)) == 'yes' || 
-			
-			// Skip markups on variable products where all variations are zero-priced
-			($args['product'] && $args['product']->is_type('variable') && 
-			$args['product']->get_variation_price('min') == 0 && $args['product']->get_variation_price('max') == 0)
+			get_option(REWRITE_TERM_NAME_PREFIX . wc_attribute_taxonomy_id_by_name($attribute)) == 'yes'
 		) {
 			return $html;
 		}
-
-		// Exit if "don't overwrite" flag is set for attribute
-		if (get_option(DONT_OVERWRITE_THEME_PREFIX . $attribute_id) == 'yes') {
-			return $html;
-		}
-
-		// If the markup is supposed to be included in the name, do not run through
-		// this code. This prevents the markup from appearing twice in a drop-down.
-		if (get_option(REWRITE_TERM_NAME_PREFIX . wc_attribute_taxonomy_id_by_name($attribute)) == 'yes') {
-			return $html;
-		}
-
-		// Only check for zero price handling if markup is in the name
+		
+		// Skip markups on variable products where all variations are zero-priced
 		$strip_markups = false;
-		if (MT2MBA_ALLOW_ZERO === 'yes' && $args['product'] && $args['product']->get_price() == 0) {
-			// No markups on zero priced items
-			return $html;
+		if (
+			$args['product'] && $args['product']->is_type('variable') && 
+			$args['product']->get_variation_price('min') == 0 &&
+			$args['product']->get_variation_price('max') == 0
+		) {
+			$strip_markups = true;
 		}
 
 		// Set globals
