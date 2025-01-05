@@ -1,61 +1,38 @@
 /wp-content/plugins/markup-by-attribute-for-woocommerce
-¦   autoloader.php
-¦   folder_structure.txt
-¦   index.php
-¦   LICENSE
-¦   markup-by-attribute-for-woocommerce.php
-¦   readme.txt
-¦   
+Â¦	autoloader.php
+Â¦	folder_structure.txt
+Â¦	index.php
+Â¦	LICENSE
+Â¦	markup-by-attribute-for-woocommerce.php
+Â¦	readme.txt
+Â¦
 +---languages
-¦       markup-by-attribute-de_AT.l10n.php
-¦       markup-by-attribute-de_AT.mo
-¦       markup-by-attribute-de_AT.po
-¦       markup-by-attribute-de_CH.l10n.php
-¦       markup-by-attribute-de_CH.mo
-¦       markup-by-attribute-de_CH.po
-¦       markup-by-attribute-de_CH_informal.l10n.php
-¦       markup-by-attribute-de_CH_informal.mo
-¦       markup-by-attribute-de_CH_informal.po
-¦       markup-by-attribute-de_DE.l10n.php
-¦       markup-by-attribute-de_DE.mo
-¦       markup-by-attribute-de_DE.po
-¦       markup-by-attribute-de_DE_formal.l10n.php
-¦       markup-by-attribute-de_DE_formal.mo
-¦       markup-by-attribute-de_DE_formal.po
-¦       markup-by-attribute-fr_FR.l10n.php
-¦       markup-by-attribute-fr_FR.mo
-¦       markup-by-attribute-fr_FR.po
-¦       markup-by-attribute-it_IT.l10n.php
-¦       markup-by-attribute-it_IT.mo
-¦       markup-by-attribute-it_IT.po
-¦       markup-by-attribute-pl_PL.l10n.php
-¦       markup-by-attribute-pl_PL.mo
-¦       markup-by-attribute-pl_PL.po
-¦       markup-by-attribute-sv_SE.l10n.php
-¦       markup-by-attribute-sv_SE.mo
-¦       markup-by-attribute-sv_SE.po
-¦       markup-by-attribute.pot
-¦       
+Â¦
 +---src
-    +---backend
-    ¦       product.php
-    ¦       productlist.php
-    ¦       settings.php
-    ¦       term.php
-    ¦       
-    +---css
-    ¦       admin-style.css
-    ¦       
-    +---frontend
-    ¦       options.php
-    ¦       
-    +---js
-    ¦       jq-mt2mba-clear-notices.js
-    ¦       jq-mt2mba-pointers.js
-    ¦       jq-mt2mba-reapply-markups-product.js
-    ¦       jq-mt2mba-reapply-markups-productlist.js
-    ¦       
-    +---utility
-            general.php
-            notices.php
-            pointers.php
+	+---backend
+	Â¦	Â¦	product.php
+	Â¦	Â¦	productlist.php
+	Â¦	Â¦	settings.php
+	Â¦	Â¦	term.php
+	Â¦	Â¦
+	Â¦	+---handlers
+	Â¦			markupdeletehandler.php
+	Â¦			pricemarkuphandler.php
+	Â¦			pricesethandler.php
+	Â¦
+	+---css
+	Â¦		admin-style.css
+	Â¦
+	+---frontend
+	Â¦		options.php
+	Â¦
+	+---js
+	Â¦		jq-mt2mba-clear-notices.js
+	Â¦		jq-mt2mba-pointers.js
+	Â¦		jq-mt2mba-reapply-markups-product.js
+	Â¦		jq-mt2mba-reapply-markups-productlist.js
+	Â¦
+	+---utility
+			general.php
+			notices.php
+			pointers.php
