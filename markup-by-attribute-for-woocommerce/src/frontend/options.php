@@ -35,8 +35,8 @@ class Options {
 	 *
 	 * @param	string	$html	The original dropdown HTML
 	 * @param	array	$args {
-	 *  	@type	string	$attribute			Attribute name
-	 *  	@type	string	$name				Form field name
+	 * 		@type	string	$attribute			Attribute name
+	 * 		@type	string	$name				Form field name
 	 *  	@type	array	$options			Available options
 	 *  	@type	string	$selected			Currently selected value
 	 *  	@type	bool	$show_option_none	Whether to show "Choose an option"
@@ -46,13 +46,20 @@ class Options {
 	public function mt2mbaDropdownOptionsMarkupHTML($html, $args) {
 		// Extract attribute from $args
 		$attribute = $args['attribute'];
-		$attribute_id = wc_attribute_taxonomy_id_by_name($attribute);
-		
-		if ($attribute_id === 0) {
-			error_log(sprintf(
-				'Markup by Attribute: Failed to get taxonomy ID for attribute %s',
-				$attribute
-			));
+
+		// Check if this is a taxonomy (global) attribute
+		if (taxonomy_exists($attribute)) {
+			// Get attribute ID
+			$attribute_id = wc_attribute_taxonomy_id_by_name($attribute);
+			if ($attribute_id === 0) {
+				error_log(sprintf(
+					'Markup by Attribute: Failed to get taxonomy ID for global attribute %s',
+					$attribute
+				));
+				return $html;
+			}
+		} else {
+			// Not a taxonomy (global) attribute
 			return $html;
 		}
 

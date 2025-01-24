@@ -83,22 +83,22 @@ class Term {
 	 * Initialize text labels and descriptions
 	 */
 	private function initializeLabels() {
-		$this->markup_label = __('Markup (or markdown)', 'markup-by-attribute');
-		$this->markup_description = __('Markup or markdown associated with this option. Signed, floating point numeric allowed.', 'markup-by-attribute');
-		$this->rewrite_name_label = __('Add Markup to Name?', 'markup-by-attribute');
+		$this->markup_label = __('Markup (or markdown)', 'markup-by-attribute-for-woocommerce');
+		$this->markup_description = __('Markup or markdown associated with this option. Signed, floating point numeric allowed.', 'markup-by-attribute-for-woocommerce');
+		$this->rewrite_name_label = __('Add Markup to Name?', 'markup-by-attribute-for-woocommerce');
 		$this->rewrite_name_description = sprintf(
-			__('Rename the option to include the markup.', 'markup-by-attribute') . ' ' .
-			__('Often needed if the option drop-down box is overwritten by another plugin or theme and markup is no longer visible.', 'markup-by-attribute')
+			__('Rename the option to include the markup.', 'markup-by-attribute-for-woocommerce') . ' ' .
+			__('Often needed if the option drop-down box is overwritten by another plugin or theme and markup is no longer visible.', 'markup-by-attribute-for-woocommerce')
 		);
-		$this->rewrite_desc_label = __('Add Markup to Description?', 'markup-by-attribute');
+		$this->rewrite_desc_label = __('Add Markup to Description?', 'markup-by-attribute-for-woocommerce');
 		$this->rewrite_desc_description = sprintf(
-			__('Add the markup to the option\'s description.', 'markup-by-attribute') . ' ' .
-			__('Often needed if the option drop-down box is overwritten by another plugin or theme and markup is no longer visible.', 'markup-by-attribute')
+			__('Add the markup to the option\'s description.', 'markup-by-attribute-for-woocommerce') . ' ' .
+			__('Often needed if the option drop-down box is overwritten by another plugin or theme and markup is no longer visible.', 'markup-by-attribute-for-woocommerce')
 		);
-		$this->dont_overwrite_theme_label = __('Do Not Overwrite Theme', 'markup-by-attribute');
+		$this->dont_overwrite_theme_label = __('Do Not Overwrite Theme', 'markup-by-attribute-for-woocommerce');
 		$this->dont_overwrite_theme_description = sprintf(
-			__('Do not overwrite the option selection mechanism provided with your theme.', 'markup-by-attribute') . ' ' .
-			__('Use this if the option drop-down box is overwriting a preferred method provided by another plugin or your theme.', 'markup-by-attribute')
+			__('Do not overwrite the option selection mechanism provided with your theme.', 'markup-by-attribute-for-woocommerce') . ' ' .
+			__('Use this if the option drop-down box is overwriting a preferred method provided by another plugin or your theme.', 'markup-by-attribute-for-woocommerce')
 		);
 		$this->placeholder = "[+|-]" . wc_format_localized_decimal('0.00') ." or [+|-]" . wc_format_localized_decimal('00.0%');
 	}
@@ -151,7 +151,7 @@ class Term {
 	private function registerColumnHooks($taxonomy) {
 		// Add 'Markup' column
 		add_filter("manage_edit-{$taxonomy}_columns", function ($columns) {
-			$columns['markup'] = __('Markup', 'markup-by-attribute');
+			$columns['markup'] = __('Markup', 'markup-by-attribute-for-woocommerce');
 			return $columns;
 		}, 10);
 
@@ -189,9 +189,9 @@ class Term {
 			// Find new attribute ID and write options
 			foreach ($attribute_taxonomies as $attribute_taxonomy) {
 				if ($attribute_taxonomy->attribute_label == $_POST['attribute_label']) {
-					update_option(REWRITE_TERM_NAME_PREFIX . $attribute_taxonomy->attribute_id, $rewrite_name_flag);
-					update_option(REWRITE_TERM_DESC_PREFIX . $attribute_taxonomy->attribute_id, $rewrite_desc_flag);
-					update_option(DONT_OVERWRITE_THEME_PREFIX . $attribute_taxonomy->attribute_id, $dont_overwrite_theme_flag);
+					update_option(REWRITE_TERM_NAME_PREFIX . $attribute_taxonomy->attribute_id, $rewrite_name_flag, NO_AUTOLOAD);
+					update_option(REWRITE_TERM_DESC_PREFIX . $attribute_taxonomy->attribute_id, $rewrite_desc_flag, NO_AUTOLOAD);
+					update_option(DONT_OVERWRITE_THEME_PREFIX . $attribute_taxonomy->attribute_id, $dont_overwrite_theme_flag, NO_AUTOLOAD);
 				}
 			}
 		}
@@ -224,11 +224,11 @@ class Term {
 		if (isset($_POST['save_attribute'])) {
 			// [Update] button pressed, set rewrite flag and save
 			$rewrite_name_flag = isset($_POST['term_name_rewrite']) ? 'yes' : 'no';
-			update_option(REWRITE_TERM_NAME_PREFIX . $_GET['edit'], $rewrite_name_flag);
+			update_option(REWRITE_TERM_NAME_PREFIX . $_GET['edit'], $rewrite_name_flag, NO_AUTOLOAD);
 			$rewrite_desc_flag = isset($_POST['term_desc_rewrite']) ? 'yes' : 'no';
-			update_option(REWRITE_TERM_DESC_PREFIX . $_GET['edit'], $rewrite_desc_flag);
+			update_option(REWRITE_TERM_DESC_PREFIX . $_GET['edit'], $rewrite_desc_flag, NO_AUTOLOAD);
 			$dont_overwrite_theme_flag = isset($_POST['dont_overwrite_theme']) ? 'yes' : 'no';
-			update_option(DONT_OVERWRITE_THEME_PREFIX . $_GET['edit'], $dont_overwrite_theme_flag);
+			update_option(DONT_OVERWRITE_THEME_PREFIX . $_GET['edit'], $dont_overwrite_theme_flag, NO_AUTOLOAD);
 		} else {
 			// First time in, set rewrite flag from Options database
 			$rewrite_name_flag			= get_option(REWRITE_TERM_NAME_PREFIX . $_GET['edit'], false);

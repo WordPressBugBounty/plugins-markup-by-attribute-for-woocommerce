@@ -70,7 +70,7 @@ class General {
 		// --------------------------------------------------------------
 		// Update database from version 1.x. Leave 1.x data for fallback.
 		// --------------------------------------------------------------
-		if ($current_db_version < 2.0) {
+		if (version_compare($current_db_version, '2.0', '<')) {
 			// Add prefix to attribute markup meta data key
 			$results = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}termmeta WHERE meta_key LIKE 'markup'");
 			foreach ($results as $row) {
@@ -115,7 +115,7 @@ class General {
 		}
 
 		// Made it this far, update database version
-		update_option('mt2mba_db_version', MT2MBA_DB_VERSION);
+		update_option('mt2mba_db_version', MT2MBA_DB_VERSION, NO_AUTOLOAD);
 	}
 
 
@@ -206,8 +206,8 @@ class General {
 			if (MT2MBA_INCLUDE_ATTRB_NAME == 'yes') {
 				// Translators; %1$s is the formatted price, %2$s is the attribute name, %3$s is the term name
 				$desc_format = $markup < 0 ? 
-					__('Subtract %1$s for %2$s: %3$s', 'markup-by-attribute') : 
-					__('Add %1$s for %2$s: %3$s', 'markup-by-attribute');
+					__('Subtract %1$s for %2$s: %3$s', 'markup-by-attribute-for-woocommerce') : 
+					__('Add %1$s for %2$s: %3$s', 'markup-by-attribute-for-woocommerce');
 				
 				return html_entity_decode(
 					sprintf(
@@ -219,8 +219,8 @@ class General {
 				);
 			} else {				// Translators; %1$s is the formatted price, %2$s is the term name
 				$desc_format = $markup < 0 ? 
-					__('Subtract %1$s for %2$s', 'markup-by-attribute') : 
-					__('Add %1$s for %2$s', 'markup-by-attribute');
+					__('Subtract %1$s for %2$s', 'markup-by-attribute-for-woocommerce') : 
+					__('Add %1$s for %2$s', 'markup-by-attribute-for-woocommerce');
 				
 				return html_entity_decode(
 					sprintf(

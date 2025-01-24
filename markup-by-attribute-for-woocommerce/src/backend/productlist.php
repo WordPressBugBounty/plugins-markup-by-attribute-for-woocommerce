@@ -122,18 +122,18 @@ class ProductList {
 			array(
 				'security' => wp_create_nonce('handleMarkupReapplication'),
 				'i18n' => array(
-					'processing' => __('Please wait; processing product %1$s of %2$s...', 'markup-by-attribute'),
+					'processing' => __('Please wait; processing product %1$s of %2$s...', 'markup-by-attribute-for-woocommerce'),
 					'processed' => _n(
 						'%s product processed successfully.',
 						'%s products processed successfully.',
 						1,
-						'markup-by-attribute'
+						'markup-by-attribute-for-woocommerce'
 					),
 					'processedPlural' => _n(
 						'%s product processed successfully.',
 						'%s products processed successfully.',
 						2,
-						'markup-by-attribute'
+						'markup-by-attribute-for-woocommerce'
 					)
 				)
 			)
@@ -166,10 +166,10 @@ class ProductList {
 			$new_columns[$key] = $column;
 			if ($key === 'price') {
 				// This column will get both sets of classes 
-				$new_columns['mt2mba_base_price'] = __('Base Price', 'markup-by-attribute');
+				$new_columns['mt2mba_base_price'] = __('Base Price', 'markup-by-attribute-for-woocommerce');
 			}
 			if ($key === 'product_tag') {
-				$new_columns['product_attributes'] = __('Attributes', 'markup-by-attribute');
+				$new_columns['product_attributes'] = __('Attributes', 'markup-by-attribute-for-woocommerce');
 			}
 		}
 		return $new_columns;
@@ -290,16 +290,16 @@ class ProductList {
 		if ($this->variable_products[$product_id] && $has_markup) {
 			echo '<br/><a href="#" class="js-mt2mba-reapply-markup" ' .
 				'data-product-id="' . esc_attr($product_id) . '" ' .
-				'title="' . esc_attr__('Reapply Markups', 'markup-by-attribute') . '">' .
+				'title="' . esc_attr__('Reapply Markups', 'markup-by-attribute-for-woocommerce') . '">' .
 				'<span class="dashicons dashicons-update"></span>' .
-				__('Reprice', 'markup-by-attribute') . '</a>';
+				__('Reprice', 'markup-by-attribute-for-woocommerce') . '</a>';
 			// Add hover text to reprice icon
 			echo "<script>
 				jQuery(document).ready(function($) {
 					$('.js-mt2mba-reapply-markup[data-product-id=\"{$product_id}\"]')
 						.attr('title', '" . 
 						esc_js(sprintf(
-							__('Reapply markups using base price: %s', 'markup-by-attribute'),
+							__('Reapply markups using base price: %s', 'markup-by-attribute-for-woocommerce'),
 							html_entity_decode(strip_tags(wc_price($base_price)))
 						)) . 
 						"');
@@ -388,7 +388,7 @@ class ProductList {
 			
 			// Add our action after 'Edit'
 			if ($key === 'edit') {
-				$new_actions['reapply_markups'] = __('Reapply Markups', 'markup-by-attribute');
+				$new_actions['reapply_markups'] = __('Reapply Markups', 'markup-by-attribute-for-woocommerce');
 			}
 		}
 		return $new_actions;
@@ -427,7 +427,7 @@ class ProductList {
 		$product = wc_get_product($product_id);
 
 		if (!$product) {
-			wp_send_json_error(['message' => __('Product not found', 'markup-by-attribute')]);
+			wp_send_json_error(['message' => __('Product not found', 'markup-by-attribute-for-woocommerce')]);
 			return;
 		}
 

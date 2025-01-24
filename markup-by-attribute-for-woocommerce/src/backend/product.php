@@ -55,8 +55,8 @@ class Product {
 			// Regular Price Field
 			woocommerce_wp_text_input([
 				'id'				=> 'base_regular_price',
-				'label'				=> __('Regular base price', 'markup-by-attribute') . $currency_symbol,
-				'description'		=> __('Regular base price for the variations before markup', 'markup-by-attribute'),
+				'label'				=> __('Regular base price', 'markup-by-attribute-for-woocommerce') . $currency_symbol,
+				'description'		=> __('Regular base price for the variations before markup', 'markup-by-attribute-for-woocommerce'),
 				'value'				=> $base_regular_price,
 				'type'				=> 'text',
 				'desc_tip'			=> true,
@@ -69,8 +69,8 @@ class Product {
 			if ($base_sale_price !== '') {
 				woocommerce_wp_text_input([
 					'id'			=> 'base_sale_price',
-					'label'				=> __('Sale base price', 'markup-by-attribute') . $currency_symbol,
-					'description'		=> __('Sale base price for the variations before markup', 'markup-by-attribute'),
+					'label'				=> __('Sale base price', 'markup-by-attribute-for-woocommerce') . $currency_symbol,
+					'description'		=> __('Sale base price for the variations before markup', 'markup-by-attribute-for-woocommerce'),
 					'value'			=> $base_sale_price,
 					'type'			=> 'text',
 					'desc_tip'		=> true,
@@ -82,7 +82,7 @@ class Product {
 
 			echo '<div id="base_price_info"><p class="form-field">' .
 				'<span class="base-price-info dashicons dashicons-info"></span>' .
-				__("Change base prices with the <em>Bulk actions</em> on the <b>Variations</b> tab.", "markup-by-attribute") .
+				__('Change base prices with the <em>Bulk actions</em> on the <b>Variations</b> tab.', 'markup-by-attribute-for-woocommerce') .
 				'</p></div>';
 			echo '</div>';
 		}
@@ -159,9 +159,9 @@ class Product {
 					'security' => wp_create_nonce('handleMarkupReapplication'),
 					'variationsNonce' => wp_create_nonce('load-variations'),
 					'i18n' => array(
-						'reapplyMarkupss' => __('Reapply markups to prices', 'markup-by-attribute'),
-						'confirmReapply' => __('Reprice variations at %s, plus or minus the markups?', 'markup-by-attribute'),
-						'failedRecalculating' => __('Failed to reapply markups. Please try again.', 'markup-by-attribute')
+						'reapplyMarkupss' => __('Reapply markups to prices', 'markup-by-attribute-for-woocommerce'),
+						'confirmReapply' => __('Reprice variations at %s, plus or minus the markups?', 'markup-by-attribute-for-woocommerce'),
+						'failedRecalculating' => __('Failed to reapply markups. Please try again.', 'markup-by-attribute-for-woocommerce')
 					)
 				)
 			);
@@ -251,18 +251,18 @@ class Product {
 	 */
 	private function validateReapplyMarkupsRequest() {
 		if (!check_ajax_referer('handleMarkupReapplication', 'security', false)) {
-			wp_send_json_error(['message' => __('Permission denied', 'markup-by-attribute')]);
+			wp_send_json_error(['message' => __('Permission denied', 'markup-by-attribute-for-woocommerce')]);
 			return false;
 		}
 	  
 		if (!current_user_can('edit_products')) {
-			wp_send_json_error(['message' => __('Permission denied', 'markup-by-attribute')]);
+			wp_send_json_error(['message' => __('Permission denied', 'markup-by-attribute-for-woocommerce')]);
 			return false;
 		}
 
 		$product_id = isset($_POST['product_id']) ? absint($_POST['product_id']) : 0;
 		if (!$product_id || !($product = wc_get_product($product_id)) || !$product->is_type('variable')) {
-			wp_send_json_error(['message' => __('Invalid product ID', 'markup-by-attribute')]);
+			wp_send_json_error(['message' => __('Invalid product ID', 'markup-by-attribute-for-woocommerce')]);
 			return false;
 		}
 

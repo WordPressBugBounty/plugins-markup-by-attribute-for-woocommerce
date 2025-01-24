@@ -9,14 +9,14 @@ Contributors:			MarkTomlinson
 Donate link:			https://www.paypal.me/MT2Dev/5
 License:				GPLv3
 License URI:			https://www.gnu.org/licenses/gpl-3.0.html
-Version:				4.3.1
-Build:					202501.02
+Version:				4.3.2
+Build:					202504.03
 Stable tag:				trunk
 Tested up to:			6.7.1
 Requires at least:		4.6
-PHP tested up to:		8.3.15
+PHP tested up to:		8.3.11
 Requires PHP:			5.6
-WC tested up to:		9.5.1
+WC tested up to:		9.6.0
 WC requires at least:	3.0
 MySQL tested up to:		8.0.40
 
@@ -186,6 +186,17 @@ If you use Markup-by-Attribute and want to see me continuing support for it, I e
 7. The settings page allows configuration of how the markup is displayed.
 
 == Changelog ==
+= 4.3.2 =
+*Release Date: January 2025*
+
+**Features**
+* Added Spanish translation files. Plugin now supports German, French, Italian, Polish, Swedish, and Spanish translations
+
+**Bug Fixes**
+* Corrected the way Markup-by-Attribute handles translation files. Many thanks to Knut Sparhell (@knutsp) on WordPress.org.
+* Corrected incorrect error message when displaying non-taxonomy attributes
+* Set all Markup-by-Attribute options to NOT autoload
+
 = 4.3.1 =
 *Release Date: January 2025*
 
