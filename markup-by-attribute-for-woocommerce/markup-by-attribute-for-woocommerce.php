@@ -23,8 +23,7 @@ use mt2Tech\MarkupByAttribute\Utility	as Utility;
  * License URI:				https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:				markup-by-attribute
  * Domain Path:				/languages
- * Version:					4.3.2
- * Build:					202504.03
+ * Version:					4.3.3
  * Stable tag:				trunk
  * Tested up to:			6.7.1
  * Requires at least:		4.6
@@ -93,8 +92,7 @@ function mt2mba_main() {
 
 	// Set plugin information
 	define('MT2MBA_PLUGIN_PREFIX', 'MT2MBA');
-	define('MT2MBA_VERSION', '4.3.2');
-	define('MT2MBA_BUILD', 202404.03);
+	define('MT2MBA_VERSION', '4.3.3');
 	define('MT2MBA_DB_VERSION', 2.2);
 	define('MT2MBA_SITE_URL', get_bloginfo('wpurl'));
 	define('MT2MBA_PLUGIN_DIR', plugin_dir_path(__FILE__));
@@ -107,7 +105,6 @@ function mt2mba_main() {
 	define('REWRITE_TERM_NAME_PREFIX', 'mt2mba_rewrite_attrb_name_');
 	define('REWRITE_TERM_DESC_PREFIX', 'mt2mba_rewrite_attrb_desc_');
 	define('DONT_OVERWRITE_THEME_PREFIX', 'mt2mba_dont_overwrite_theme_');
-	define('NO_AUTOLOAD', 'no');
 	/**
 	 * Constants for markup text formatting
 	 */

@@ -179,19 +179,26 @@ class Term {
 	 */
 	function addAttributeFields() {
 		if (isset($_POST['add_new_attribute'])) {
-			// [Add attribute] button pressed, save the rewrite flags
-			$rewrite_name_flag			= isset($_POST['term_name_rewrite']) ? 'yes' : 'no';
-			$rewrite_desc_flag			= isset($_POST['term_desc_rewrite']) ? 'yes' : 'no';
-			$dont_overwrite_theme_flag	= isset($_POST['dont_overwrite_theme']) ? 'yes' : 'no';
-
-			// Get all attributes
-			$attribute_taxonomies = wc_get_attribute_taxonomies();
-			// Find new attribute ID and write options
-			foreach ($attribute_taxonomies as $attribute_taxonomy) {
-				if ($attribute_taxonomy->attribute_label == $_POST['attribute_label']) {
-					update_option(REWRITE_TERM_NAME_PREFIX . $attribute_taxonomy->attribute_id, $rewrite_name_flag, NO_AUTOLOAD);
-					update_option(REWRITE_TERM_DESC_PREFIX . $attribute_taxonomy->attribute_id, $rewrite_desc_flag, NO_AUTOLOAD);
-					update_option(DONT_OVERWRITE_THEME_PREFIX . $attribute_taxonomy->attribute_id, $dont_overwrite_theme_flag, NO_AUTOLOAD);
+			$taxonomy_id = wc_attribute_taxonomy_id_by_name(sanitize_title($_POST['attribute_label']));
+			
+			$options = [
+				REWRITE_TERM_NAME_PREFIX . $taxonomy_id => [
+					'value' => isset($_POST['term_name_rewrite']),
+					'autoload' => true
+				],
+				REWRITE_TERM_DESC_PREFIX . $taxonomy_id => [
+					'value' => isset($_POST['term_desc_rewrite']), 
+					'autoload' => false
+				],
+				DONT_OVERWRITE_THEME_PREFIX . $taxonomy_id => [
+					'value' => isset($_POST['dont_overwrite_theme']),
+					'autoload' => true
+				]
+			];
+		
+			foreach ($options as $option_name => $settings) {
+				if ($settings['value']) {
+					update_option($option_name, 'yes', $settings['autoload']);
 				}
 			}
 		}
@@ -222,19 +229,34 @@ class Term {
 	function editAttributeFields() {
 		// Retrieve the existing rewrite name flag for this attribute (NULL results are valid)
 		if (isset($_POST['save_attribute'])) {
-			// [Update] button pressed, set rewrite flag and save
-			$rewrite_name_flag = isset($_POST['term_name_rewrite']) ? 'yes' : 'no';
-			update_option(REWRITE_TERM_NAME_PREFIX . $_GET['edit'], $rewrite_name_flag, NO_AUTOLOAD);
-			$rewrite_desc_flag = isset($_POST['term_desc_rewrite']) ? 'yes' : 'no';
-			update_option(REWRITE_TERM_DESC_PREFIX . $_GET['edit'], $rewrite_desc_flag, NO_AUTOLOAD);
-			$dont_overwrite_theme_flag = isset($_POST['dont_overwrite_theme']) ? 'yes' : 'no';
-			update_option(DONT_OVERWRITE_THEME_PREFIX . $_GET['edit'], $dont_overwrite_theme_flag, NO_AUTOLOAD);
-		} else {
-			// First time in, set rewrite flag from Options database
-			$rewrite_name_flag			= get_option(REWRITE_TERM_NAME_PREFIX . $_GET['edit'], false);
-			$rewrite_desc_flag			= get_option(REWRITE_TERM_DESC_PREFIX . $_GET['edit'], false);
-			$dont_overwrite_theme_flag	= get_option(DONT_OVERWRITE_THEME_PREFIX . $_GET['edit'], false);
+			$attribute_id = $_GET['edit'];
+			$options = [
+				REWRITE_TERM_NAME_PREFIX . $attribute_id => [
+					'value' => isset($_POST['term_name_rewrite']),
+					'autoload' => true
+				],
+				REWRITE_TERM_DESC_PREFIX . $attribute_id => [
+					'value' => isset($_POST['term_desc_rewrite']), 
+					'autoload' => false
+				],
+				DONT_OVERWRITE_THEME_PREFIX . $attribute_id => [
+					'value' => isset($_POST['dont_overwrite_theme']),
+					'autoload' => true
+				]
+			];
+		
+			foreach ($options as $option_name => $settings) {
+				if ($settings['value']) {
+					update_option($option_name, 'yes', $settings['autoload']);
+				} else {
+					delete_option($option_name);
+				}
+			}
 		}
+		// Set flags from Options database
+		$rewrite_name_flag			= get_option(REWRITE_TERM_NAME_PREFIX . $_GET['edit'], false);
+		$rewrite_desc_flag			= get_option(REWRITE_TERM_DESC_PREFIX . $_GET['edit'], false);
+		$dont_overwrite_theme_flag	= get_option(DONT_OVERWRITE_THEME_PREFIX . $_GET['edit'], false);
 
 		// Build row and fill field with current markup
 		$checked_name_flag = $rewrite_name_flag == 'yes' ? ' checked' : "";

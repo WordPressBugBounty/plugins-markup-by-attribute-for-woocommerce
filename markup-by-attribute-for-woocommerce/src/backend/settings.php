@@ -89,7 +89,7 @@ class Settings extends WC_Settings_API {
 			$mt2mba_settings[] = array(
 				'name'	=> __('Markup Display', 'markup-by-attribute-for-woocommerce'),
 				'type'	=> 'title',
-				'id'	=> 'mt2mba_display'
+				'id'	=> 'mt2mbaDisplaySection'
 			);
 
 			/** -- Option Drop-down Behavior --
@@ -157,14 +157,14 @@ class Settings extends WC_Settings_API {
 
 			$mt2mba_settings[] = array(
 				'type'		=> 'sectionend',
-				'id'		=> 'mt2mba_display'
+				'id'		=> 'mt2mbaDisplaySection'
 			);
 
 			// *** Markup Calculation settings ***
 			$mt2mba_settings[] = array(
 				'name'		=> __('Markup Calculation', 'markup-by-attribute-for-woocommerce'),
 				'type'		=> 'title',
-				'id'		=> 'mt2mba_calc'
+				'id'		=> 'mt2mbaCalcSection'
 			);
 
 			/** -- Sale Price Markup --
@@ -220,14 +220,14 @@ class Settings extends WC_Settings_API {
 
 			$mt2mba_settings[] = array(
 				'type'		=> 'sectionend',
-				'id'		=> 'mt2mba_calc'
+				'id'		=> 'mt2mbaCalcSection'
 			);
 
 			// *** Other settings ***
 			$mt2mba_settings[] = array(
 				'name'		=> __('Other', 'markup-by-attribute-for-woocommerce'),
 				'type'		=> 'title',
-				'id'		=> 'mt2mba_other'
+				'id'		=> 'mt2mbaOtherSection'
 			);
 
 			/** -- Max Variations --
@@ -253,19 +253,30 @@ class Settings extends WC_Settings_API {
 
 			$mt2mba_settings[] = array(
 				'type'		=> 'sectionend',
-				'id'		=> 'mt2mba_other'
+				'id'		=> 'mt2mbaOtherSection'
 			);
 
 			// Set autoload to 'no' because WC_Settings_API always resets it to 'on'
 			if (isset($_POST['save'])) {
-				// The [Save settings] button was clicked
+				$setting_ids = array_column(
+					array_filter($mt2mba_settings, function($item) {
+						return isset($item['id']) && strpos($item['id'], 'mt2mba_') === 0;
+					}), 
+					'id'
+				);
+
 				global $wpdb;
-				// Set all options named mt2mba_{something} to 'no'
-				$wpdb->query("
-					UPDATE {$wpdb->prefix}options 
-					SET autoload = 'no' 
-					WHERE option_name LIKE 'mt2mba_%'
-				");
+				/**
+				 * Autoload value 'no' is used instead of 'off' to maintain backward compatability
+				 * For now, anyway
+				 */
+				foreach ($setting_ids as $id) {
+					$wpdb->query("
+						UPDATE {$wpdb->prefix}options
+						SET autoload = 'no'
+						WHERE option_name = '{$id}'
+					");
+				}
 			}
 
 			return $mt2mba_settings;

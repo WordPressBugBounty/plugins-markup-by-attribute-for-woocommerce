@@ -40,7 +40,7 @@ class General {
 		// Handle first-time installation
 		if ($current_version === false) {
 			// Set initial version and avoid triggering upgrade
-			update_site_option('mt2mba_db_version', MT2MBA_DB_VERSION);
+			update_option('mt2mba_db_version', MT2MBA_DB_VERSION, false);
 		} elseif (version_compare($current_version, MT2MBA_DB_VERSION, '<')) {
 			// Perform upgrade if required
 			$this->mt2mba_db_upgrade();
@@ -115,7 +115,7 @@ class General {
 		}
 
 		// Made it this far, update database version
-		update_option('mt2mba_db_version', MT2MBA_DB_VERSION, NO_AUTOLOAD);
+		update_option('mt2mba_db_version', MT2MBA_DB_VERSION, false);
 	}
 
 
