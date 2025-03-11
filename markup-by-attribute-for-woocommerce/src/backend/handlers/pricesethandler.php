@@ -100,7 +100,7 @@ class PriceSetHandler extends PriceMarkupHandler {
 					return false;
 				}
 
-			} else {	// Else ({base_price} is not numeric,
+			} else {	// Else ({base_price} is not numeric),
 				// Remove {price_type} base price metadata
 				delete_post_meta($product_id, "mt2mba_base_{$this->price_type}");
 				// Fall through to Regular Price check

@@ -93,7 +93,7 @@ class Options {
 		$id						= $args['id'] ? $args['id'] : sanitize_title($attribute);
 		$class					= $args['class'];
 		$show_option_none		= $args['show_option_none'] ? TRUE : FALSE;
-		$show_option_none_text	= $args['show_option_none'] ? $args['show_option_none'] : __('Choose an option', 'markup-by-attribute-for-woocommerce');
+		$show_option_none_text	= $args['show_option_none'] ? $args['show_option_none'] : __('Choose an option', 'woocommerce');
 		$options				= $args['options'];
 	
 		// If $options is empty, get them from the product attributes
