@@ -1,22 +1,30 @@
-/*	==========================================================================
-	Markup by Attribute Admin Styles
-	========================================================================== */
+/* =============================================================================
+   Markup by Attribute Admin Styles
+   ========================================================================== */
 
-/*	Hide WooCommerce's Add Price Button
-	Prevents conflicts with Set Regular Prices bulk function 
-	========================================================================== */
+/* =============================================================================
+   WooCommerce Integration
+   ========================================================================== */
+
+/* Hide WooCommerce's Add Price Button - prevents conflicts with bulk pricing */
 .woocommerce-add-variation-price-container {
 	display: none !important;
 }
 
-/*	Product List Table Styles
-	Basic table layout and cell formatting
-	========================================================================== */
+/* =============================================================================
+   Product List Table
+   ========================================================================== */
+
 .wp-list-table {
 	table-layout: fixed;
 }
 
-/* Column Widths and Alignment */
+.wp-list-table td {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Column Layout */
 .wp-list-table .column-product_attributes {
 	width: 11%;
 }
@@ -26,29 +34,23 @@
 	text-align: center;
 }
 
-/* Cell Text Overflow */
-.wp-list-table td {
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
+/* =============================================================================
+   Action Links & Buttons
+   ========================================================================== */
 
-/*	Reprice Link Styles
-	Markup reapplication icon and interaction states
-	========================================================================== */
 .js-mt2mba-reapply-markup {
 	color: #2271b1;
+	text-decoration: none;
 }
 
-/* Icon Sizing */
 .js-mt2mba-reapply-markup .dashicons {
 	font-size: 20px;
 	width: 22px;
 	height: 22px;
 }
 
-/* Link States */
 .js-mt2mba-reapply-markup:hover {
-	color: #135e96;  /* WP admin blue hover color */
+	color: #135e96;
 	text-decoration: none;
 }
 
@@ -58,41 +60,43 @@
 	box-shadow: none;
 }
 
+/* Action Link States */
 .js-mt2mba-reapply-markup.processing {
 	color: #2271b1;
 	opacity: 0.5;
 }
 
 .js-mt2mba-reapply-markup.error {
-	color: red;
+	color: #dc3232;
 }
 
-/*	Progress Indicators
-	Styles for bulk operation progress display
-	========================================================================== */
-/* Progress Notice Container */
+/* =============================================================================
+   Progress Indicators & Animations
+   ========================================================================== */
+
 .mt2mba-bulk-progress {
 	margin: 5px 0 15px;
 }
 
-/* WordPress Spinner */
 .mt2mba-bulk-progress .spinner {
 	float: none;
 	margin: 0 10px;
 }
 
-/* Spinning Icon Animation */
 @keyframes spin {
-	100% { transform: rotate(360deg); }
+	100% {
+		transform: rotate(360deg);
+	}
 }
 
 .dashicons-update-spin {
 	animation: spin 1.5s linear infinite;
 }
 
-/*	Processing Overlay
-	Semi-transparent overlay during bulk operations
-	========================================================================== */
+/* =============================================================================
+   Overlays & UI States
+   ========================================================================== */
+
 .mt2mba-processing-overlay {
 	position: absolute;
 	top: 0;
@@ -103,6 +107,10 @@
 	z-index: 1000;
 	cursor: wait;
 }
+
+/* =============================================================================
+   Base Price Information
+   ========================================================================== */
 
 span.base-price-info {
 	font-size: 18px;

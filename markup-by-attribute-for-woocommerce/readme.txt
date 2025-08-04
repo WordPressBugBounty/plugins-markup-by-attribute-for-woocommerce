@@ -9,13 +9,13 @@ Contributors:			MarkTomlinson
 Donate link:			https://www.paypal.me/MT2Dev/5
 License:				GPLv3
 License URI:			https://www.gnu.org/licenses/gpl-3.0.html
-Version:				4.3.7
-Stable tag:				4.3.7
-Tested up to:			6.8.2
+Version:				4.3.8
+Stable tag:				4.3.8
+Tested up to:			6.8.3
 Requires at least:		4.6
 PHP tested up to:		8.4.5
 Requires PHP:			7.4
-WC tested up to:		10.0.2
+WC tested up to:		10.0.4
 WC requires at least:	3.0
 MySQL tested up to:		8.4.5
 
@@ -29,7 +29,7 @@ Want to add $5 to every blue product you sell? Maybe you sell jewelry with birth
 
 = Markup by Attribute Adds 'Markup' to Attribute Terms =
 
-Markup by Attribute solves this by letting you add a markup (or markdown) to global attribute terms. If the attribute is 'Color', you can add "+5" to Blue while leaving Green and Yellow alone. When you set regular and sale prices, every blue product will automatically be $5.00 more.
+Markup by Attribute solves this by letting you add a markup (or markdown) to global attribute terms. If the attribute is 'Color,' you can add "+5" to Blue while leaving Green and Yellow alone. When you set regular and sale prices, every blue product will automatically be $5.00 more.
 
 This plugin does one thing - it adds pricing control to WooCommerce's global product attributes. If your products vary in price based on options like size, color, or material, Markup by Attribute lets you set those price differences once at the attribute level rather than manually adjusting each product variation.
 
@@ -108,6 +108,16 @@ _NOTE:_ These instructions assume you are familiar with WooCommerce global Produ
 
 == Frequently Asked Questions ==
 
+= Does Markup-by-Attribute automatically update prices when I change a markup? =
+
+**No - and this is by design.** Markup-by-Attribute only applies markups when you take specific action:
+1. When you use WooCommerce's `Set regular prices` or `Set sale prices` bulk action
+2. When you use one of the "Reapply markups" tools
+
+This intentional workflow gives you control over when prices change. You might want existing inventory to keep old prices while new products use updated markups.
+
+**Bottom line**: Setting a markup is step 1. Applying it to products is step 2.
+
 = If I change the markup for an attribute, how will product prices change? =
 
 After changing a markup value, you have several ways to update the affected products:
@@ -119,9 +129,9 @@ After changing a markup value, you have several ways to update the affected prod
 
 = How do I bulk update prices for multiple products at once? =
 
-If you change a markup value for an option, you can quickly update affected products one two ways.
-1. There is a "Reapply Markups" bulk action on the 'All Products' product list. You can even select all items on the page, and Markup-by-Attribute will find items with markups and update the prices and descriptions.
-2. There is a refresh icon beneath the attributes of individual products on the 'All Products' product list. You can filter the list by selecting the attribute in question, and then click "⟳ Reprice" on the products that you want to reapply the markup to.
+If you change a markup value for an option, you can quickly update affected products in one of two ways.
+1. There is a `Reapply Markups` bulk action on the 'All Products' product list. You can even select all items on the page, and Markup-by-Attribute will find items with markups and update the prices and descriptions.
+2. There is a refresh icon beneath the attributes of individual products on the 'All Products' product list. You can filter the list by selecting the attribute in question and then click "⟳ Reprice" on the products that you want to reapply the markup to.
 
 Additionally, a "Reapply markups to prices" option in the product's variation bulk actions. While this only works on the product you are editing, it does provide a method that is faster than setting the prices again.
 
@@ -129,32 +139,38 @@ Additionally, a "Reapply markups to prices" option in the product's variation bu
 
 Nothing. Products have to have their prices set again ("Set regular prices" in the variation bulk actions), or you can do a bulk reapplication of the markup to many products at once (see above).
 
-Not automatically changing the variation prices is important if a shop has existing inventory they want to sell at the original markup, and new products that require the new markup. You can select which product retain their old prices, and which ones are repriced with the new markup.
+Not automatically changing the variation prices is important if a shop has existing inventory they want to sell at the original markup and new products that require the new markup. You can select which products retain their old prices and which ones are repriced with the new markup.
 
 = Can I use both percentage and fixed-amount markups together? =
 
-Yes! Usually, attributes like 'Size' will have a percentage markup, whereas attributes like stitching a logo on a shirt will be fixed in price. Combining both the size markup and the logo markup on the same product is perfectly valid. But, what if you want to add a percentage and a fixed-price markup to two of the same attribute? For instance, anything that is plaid gets marked up by 5%, but anything yellow is reduced by $1. You can do this, too.
+Yes! Usually, attributes like 'Size' will have a percentage markup, whereas attributes like stitching a logo on a shirt will be fixed in price. Combining both the size markup and the logo markup on the same product is perfectly valid. But what if you want to add a percentage and a fixed-price markup to two of the same attributes? For instance, anything that is plaid gets marked up by 5%, but anything yellow is reduced by $1. You can do this, too.
 
-Any option listed under any attribute is calculated independently of any other. Any combination of positive or negative amounts or percentages are all valid.
+Any option listed under any attribute is calculated independently of any other. Any combination of positive or negative amounts or percentages is all valid.
 
 = How do markups work with sale prices? =
 
 Fixed-amount markups are added to (or subtracted from) sales prices, just as they are for regular prices. However, percentage markups can be calculated on sale prices in one of two ways.
-1. The markup is calculated on the regular price, and then applied to the sales price.
+1. The markup is calculated on the regular price and then applied to the sales price.
 2. The markup is calculated on the sale price before being applied to the sale price.
 
 You decide which way you want the percentage markups calculated with the **Sale Price Markup** option on the Markup-by-Attribute settings page.
 
 = It's not working. Why? =
 
-When I get this question, it is usually because:
+**The #1 reason**: You've set markups but haven't applied them to products yet.
 
-1. For new products or variations: You need to use the `Set regular prices` function to initially apply the variation prices with markups.
-2. For existing products after changing a markup: You need to use one of the "Reapply markups" methods to update the prices
+Markup-by-Attribute requires TWO steps:
+1. **Set the markup** on the attribute term (✓ You probably did this)
+2. **Apply it to products** using bulk actions (← This is usually the missing step)
 
-Also, make sure you don't have variations with "Any" attributes if those attributes have markups. WooCommerce will always choose the "Any" variation, regardless of others that may exist.
+**On the product page**: Use WooCommerce's `Set regular prices` or `Reapply markups to prices` bulk actions on the Variations tab.
+**On the product list**: Use the `Reapply Markups` bulk action or the refresh icon next to individual products.
 
-If it's none of these things, please check the support forums.
+**Other common issues**:
+- Variations with "Any" attributes when those attributes have markups
+- Expecting automatic price updates (this plugin requires deliberate action)
+
+If none of these solve it, check the support forums.
 
 = What if I change an attribute's markups but do not want to change products marked up previously? =
 
@@ -162,17 +178,17 @@ Then do nothing. Prices, descriptions, and option drop-downs for products will r
 
 = Does this support languages other than English? =
 
-Yes. However, the developer only speaks American English. I can provide translations via OpenAI's ChatGPT or Anthropic's Claude. But, I would prefer it if a native speaker translated the text. The .POT file is found in the /languages folder of the plugin. If you don't have access to your server, you can also find it on [GitHub](https://github.com/Mark-Tomlinson/markup-by-attribute-for-woocommerce).
+Yes. However, the developer only speaks American English. I can provide translations via OpenAI's ChatGPT or Anthropic's Claude. But I would prefer it if a native speaker translated the text. The .POT file is found in the /languages folder of the plugin. If you don't have access to your server, you can also find it on [GitHub](https://github.com/Mark-Tomlinson/markup-by-attribute-for-woocommerce).
 
-What's a .POT file? If you'd like to help but don't know how to use a template file, don't worry. A .POT file is a text file that contains all the English phrases found in Markup-by-Attribute. You can simply open it and translate what you read there. Send me the translations and I will incorporate them in the next release.
+What's a .POT file? If you'd like to help but don't know how to use a template file, don't worry. A .POT file is a text file that contains all the English phrases found in Markup-by-Attribute. You can simply open it and translate what you read there. Send me the translations, and I will incorporate them in the next release.
 
-Many thanks to [Zjadlbymcos](https://github.com/Zjadlbymcos) on GitHub for his Polish Translation and @silentstepsch for several variations of German.
+Many thanks to [Zjadlbymcos](https://github.com/Zjadlbymcos) on GitHub for his Polish translation and @silentstepsch for several variations of German.
 
 = I'd like to donate. =
 
 Thanks! The donation button assumes $5.00 USD. But please don't hesitate to adjust that amount up or down as you feel it's appropriate. I'm a retired guy who's living off his savings, so every little bit helps.
 
-If you use Markup-by-Attribute and want to see me continuing support for it, I encourage you to encourage me with a small donation.
+If you use Markup-by-Attribute and want to see me continue support for it, I encourage you to encourage me with a small donation.
 
 == Screenshots ==
 
@@ -185,6 +201,24 @@ If you use Markup-by-Attribute and want to see me continuing support for it, I e
 7. The settings page allows configuration of how the markup is displayed.
 
 == Upgrade Notice ==
+
+= 4.3.8 =
+*Release Date: August 2025*
+
+**Bug Fixes**
+* Fixed European decimal notation handling in markup validation and price processing functions to support comma decimal separators properly (e.g., "5,50" instead of "5.50")
+* Fixed sale price description handling to maintain consistent regular price markup display
+
+**Code Quality & Documentation Improvements**
+* Enhanced code readability with comprehensive PHPDoc standardization across all files
+* Added PHP type hints to all method parameters and return types for better IDE support and error prevention
+* Extracted magic numbers into meaningful named constants for improved maintainability
+* Added detailed inline comments explaining complex validation logic, security measures, and WordPress integration patterns
+* Improved input validation with centralized constants for markup limits and formatting
+* Implemented logical code organization with //region tags across all backend classes for improved developer navigation
+* Structured core backend files (Product, ProductList, Settings, Term) with consistent functional groupings (Properties, Instance Management, AJAX Handlers, etc.)
+* Consolidated utility methods into dedicated regions, separating helper functions from main business logic
+* Enhanced code organization without any functional changes to existing features
 
 = 4.3.7 =
 *Release Date: July 2025*
@@ -215,7 +249,7 @@ If you use Markup-by-Attribute and want to see me continuing support for it, I e
 *Release Date: March 2025*
 
 **Maintenance**
-* Updated to show compatibility up to Wordpress 6.7.1, WooCommerce 9.7.1, PHP 8.3.11, MySQL 8.0.41
+* Updated to show compatibility up to WordPress 6.7.1, WooCommerce 9.7.1, PHP 8.3.11, and MySQL 8.0.41
 * No code changes
 
 = 4.3.4 =
@@ -224,12 +258,6 @@ If you use Markup-by-Attribute and want to see me continuing support for it, I e
 **Bug Fixes**
 * Fixed a misnamed function in abstract class priceUpdateHandler
 * Corrected for a WP issue regarding update_post_meta()
-
-= 4.3.2 =
-*Release Date: January 2025*
-
-**Features**
-* Added Spanish translation files. Plugin now supports German, French, Italian, Polish, Swedish, and Spanish translations
 
 = 4.3.3 =
 *Release Date: January 2025*
@@ -242,7 +270,7 @@ If you use Markup-by-Attribute and want to see me continuing support for it, I e
 *Release Date: January 2025*
 
 **Features**
-* Added Spanish translation files. Plugin now supports German, French, Italian, Polish, Swedish, and Spanish translations
+* Added Spanish translation files. The plugin now supports German, French, Italian, Polish, Swedish, and Spanish translations.
 
 **Bug Fixes**
 * Corrected the way Markup-by-Attribute handles translation files. Many thanks to Knut Sparhell (@knutsp) on WordPress.org.
@@ -279,7 +307,7 @@ _Build 202449.02_
 **FEATURE**: Added the option to add the attribute label to the Add/Subtract text in the description.
 - Choose either "_Add $1.50 for Blue_" or "_Add $1.50 for Color: Blue_".
 - Choose either "_Subtract $3.97 for XXX-Small_" or "_Subtract $3.97 for Size: XXX-Small"_.
-- Use "Reapply Markups" introduced in version 4.0 to update all descriptions quickly.
+- Use "Reapply Markups," introduced in version 4.0, to update all descriptions quickly.
 **FEATURE**: Added the option to allow items priced at zero.
 - When set OFF, markup calculations proceed normally even when the base price is zero.
 - When set ON, variations with zero prices remain at zero, ignoring any markups.
@@ -307,7 +335,7 @@ _Build 202447.05_
 
 = 3.14.2 =
 Build 202440.03
-**FIX**: Corrected error with plugin links that cause critical error in the admin console. 
+**FIX**: Corrected error with plugin links that caused critical error in the admin console. 
 **MAINTENANCE**: Cleaned up many translations.
 
 = 3.14 =
@@ -319,7 +347,7 @@ Build 202440.01
 
 = 3.13.2 =
 Build 202428.02
-**FEATURE**: Added a column for the attributes to the 'All Products' page. Can also filter on the individual attributes. This will make finding products whose markups have changed much easier. Column can be added or removed on the WooCommerce>>Settings>>Markup-by-Attribute page.
+**FEATURE**: Added a column for the attributes to the 'All Products' page. Can also filter on the individual attributes. This will make finding products whose markups have changed much easier. The column can be added or removed on the WooCommerce>>Settings>>Markup-by-Attribute page.
 
 = 3.13.1 =
 Build 202428.01
@@ -328,8 +356,8 @@ Build 202428.01
 
 = 3.12.2 =
 Build 202425.01
-**FIX**: Correct code to eliminate "Creation of dynamic property" depreciation notices.
-**FIX**: Hid WooCommerce [Add price] button because it is redundant with 'Set regular prices' function, and does not hook into this plugin.
+**FIX**: Correct code to eliminate "creation of dynamic property" depreciation notices.
+**FIX**: Hid WooCommerce [Add price] button because it is redundant with the 'Set regular prices' function and does not hook into this plugin.
 **MAINTENANCE**: Ensured compatibility with current versions of WordPress, WooCommerce, and PHP.
 
 = 3.12.1 =
@@ -361,14 +389,14 @@ Build 202308.02
 = 3.11.0 =
 Build 202245.01
 **MAINTENANCE**: Ensured compatibility with current versions of WordPress, WooCommerce, and PHP.
-**MAINTENANCE**: Resolved a PHP 'depreciation' warning.
+**MAINTENANCE**: Resolved a PHP 'deprecation' warning.
 **FIX**: Fixed a bug where Markup-by-Attribute would get confused about the decimal separator because the server and WooCommerce localization settings conflict.
 Build 202245.02
 **MAINTENANCE**: Changed the default on `Sale Price Markup` to 'yes'.
 
 = 3.10.5 =
 Build 202208.01
-**FIX**: Correct Doubled currency symbol.
+**FIX**: Correct doubled currency symbol.
 **MAINTENANCE**: Tested with PHP 8.0.16 and updated `PHP tested up to:` information.
 **MAINTENANCE**: Tested with WordPress 5.9.1 and updated `Tested up to:` information.
 **MAINTENANCE**: Tested with WooCommerce 6.2.1 and updated `WC tested up to:` information.
@@ -406,10 +434,10 @@ Build 202152.01
 = 3.9.6 =
 Build 202113.02
 **FIX**: Empty and non-zero evaluations are no longer the same in PHP 8. Corrected to check each individually.
-**MAINTENANCE**: Tested with PHP 8.0.3 and update `PHP tested up to:` information.
+**MAINTENANCE**: Tested with PHP 8.0.3 and updated `PHP tested up to:` information.
 Build 202113.03
-**MAINTENANCE**: Add customer facing Swedish translations.
-**MAINTENANCE**: Tested with PHP 8.0.8, WordPress 5.7.2, WooCommerce 5.4.1.
+**MAINTENANCE**: Add customer-facing Swedish translations.
+**MAINTENANCE**: Tested with PHP 8.0.8, WordPress 5.7.2, and WooCommerce 5.4.1.
 
 = 3.9.5 =
 **MAINTENANCE**: Tested with WordPress 5.7 and include new `Tested up to:` information.
@@ -450,7 +478,7 @@ Build 202113.03
 **MAINTENANCE**: Include new `Tested to:` information.
 
 = 3.4 =
-**FIX**: Show hidden attribute terms to correct error where WordPress/WooCommerce wrongly considers the term as unused.
+**FIX**: Show hidden attribute terms to correct the error where WordPress/WooCommerce wrongly considers the term as unused.
 **MAINTENANCE**: Updated instructions.
 **MAINTENANCE**: Removed v2.4 upgrade message.
 
@@ -466,12 +494,12 @@ Build 202113.03
 **MAINTENANCE**: Added donation language to Settings page.
 
 = 3.1 =
-**FEATURE**: Added ability to round percentage markups, so prices will retain digits below decimal. For shops that want to end all prices with .00, .95, .99 or whatever. Requested feature from shop where all prices end in .00.
+**FEATURE**: Added ability to round percentage markups, so prices will retain digits below the decimal. For shops that want to end all prices with .00, .95, .99, or whatever. Requested feature from shop where all prices end in .00.
 **FEATURE**: Fully tested with Gutenberg.
 **FEATURE**: Added Polish language files.
 
 = 3.0 =
-**FEATURE**: Now supports Internationalization and translation.
+**FEATURE**: Now supports internationalization and translation.
 **MAINTENANCE**: Simplified usage directions in readme.txt.
 **MAINTENANCE**: Restructured libraries and renamed files and classes for better organization.
 **MAINTENANCE**: Rebuilt admin notice class for supportability and improved performance.
@@ -491,16 +519,16 @@ Build 202113.03
 **FEATURE**: Add option to not display markup in the options drop-down box.
 **FIX**: Add missing 'Author:' tag.
 **FIX**: Ensure documentation is clear that this works on “global” attributes.
-**FIX**: Version 2.3 exposes a problem in an earlier version's database conversion where percentage markups show incorrectly in the options drop-down (For instance, a 10% markup on $40 shows as $10 instead of $4). To patch around it, version 2.3 will put the percentage in the drop-down instead of the actual markup. These items will need to have their regular prices reset to have the actual markup appear.
+**FIX**: Version 2.3 exposes a problem in an earlier version's database conversion where percentage markups show incorrectly in the options drop-down (for instance, a 10% markup on $40 shows as $10 instead of $4). To patch around it, version 2.3 will put the percentage in the drop-down instead of the actual markup. These items will need to have their regular prices reset to have the actual markup appear.
 
 = 2.2 =
-**FIX**: Plugin name and Description.
+**FIX**: Plugin name and description.
 **FIX**: Markup calculation on sale prices when using a percentage markup (percent of the regular price, not sale price).
 **FIX**: Clear Markup-by-Attribute metadata from the database on variation deletion.
 
 = 2.1 =
-**FEATURE**: Organize `Settings` page with subheadings.
-**FEATURE**: Provide a link to the wiki from `Settings` page.
+**FEATURE**: Organize the `Settings` page with subheadings.
+**FEATURE**: Provide a link to the wiki from the `Settings` page.
 **FEATURE**: Expand wiki to include help with settings.
 **FIX**: Improve readme.txt readability.
 
@@ -510,7 +538,7 @@ Build 202113.03
 **FEATURE**: The new settings page allows configuration of the way the markup is displayed, including the number of decimals and the currency symbol.
 **FEATURE**: Markup description now enclosed in <span> tags and can be modified with CSS (#mbainfo {}).
 **FEATURE**: Markup description added to the attribute term description and can be seen in the attribute term list.
-**FEATURE**: Markup now saved as a floating-point number and not limited to only two digits below the decimal point.
+**FEATURE**: Markup is now saved as a floating-point number and not limited to only two digits below the decimal point.
 **FEATURE**: Database and code change to enhance supportability.
 **FIX**: Corrected issue where Increase/Decrease Regular/Sale Price functions calculated based on variation price rather than base price, yielding incorrect prices when percentages were used.
 **FIX**: Corrected issue where Increase/Decrease Regular/Sale Price functions did not update variation descriptions.
@@ -528,12 +556,12 @@ FIX: Remove the error_log() statement accidentally left in.
 
 **FEATURE**: Added class backend-pointers for inline instructions.
 **FEATURE**: Added instructions link to Plugins page.
-**FIX**: Use only regular price markup in attribute drop-down on the frontend. Percentage markups were appearing different in dropdown and variation description.
+**FIX**: Use only regular price markup in the attribute drop-down on the frontend. Percentage markups were appearing different in the dropdown and variation description.
 
 = 1.2.0 =
 
  * Change backend-attrb and backend-product to allow percentage markup.
- * Change backend-product and frontend to store actual product-attribute markups in post meta.
+ * Change the backend product and frontend to store actual product-attribute markups in post meta.
 
 = 1.1.1 =
 
@@ -562,7 +590,7 @@ Fixed a bug where Markup-by-Attribute would get confused about the decimal separ
 
 Added a new feature that allows Markup-by-Attribute to add the markup to the name of the option. This is useful when the dropdown box has been replaced by color swatches, checkboxes, or some other selector. As long as the name of the option is displayed (for instance, when the cursor hovers over it), then the markup will be seen by your customer.
 
-Fixed a bug where Markup-by-Attribute would overwrite the options' selector for some themes and other plugins. This occurs if the theme or plugin provided changed the function of the options' selector (for instance, to color swatches), and did not code it so that they take precedence.
+Fixed a bug where Markup-by-Attribute would overwrite the options' selector for some themes and other plugins. This occurs if the theme or plugin provided changed the function of the options' selector (for instance, to color swatches) and did not code it so that they take precedence.
 
 = 1.3.1 =
 
@@ -572,7 +600,7 @@ Fixed a bug where Markup-by-Attribute would overwrite the options' selector for 
 = 1.2.0 =
 
  * Now allows the use of percentage (5%) markups and markdowns, as well as fixed values ($5).
- * And it stores the actual markup value displayed in the attribute drop-down with the product. This allows changing of the markup in the attribute \without affecting the markup displayed with the product.
+ * And it stores the actual markup value displayed in the attribute drop-down with the product. This allows changing of the markup in the attribute without affecting the markup displayed with the product.
 
 = 1.1.1 =
 

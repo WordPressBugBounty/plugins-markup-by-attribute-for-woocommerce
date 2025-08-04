@@ -1,53 +1,98 @@
 <?php
 namespace mt2Tech\MarkupByAttribute\Utility;
+
 /**
- * Contains admin pointers to assist in onboarding
- * @author	Mark Tomlinson
+ * Admin pointer management for user onboarding
+ *
+ * Provides contextual help pointers to guide users through the plugin interface.
+ * Manages the display and dismissal of WordPress admin pointers on relevant pages
+ * to improve user experience and onboarding.
+ *
+ * @package   mt2Tech\MarkupByAttribute\Utility
+ * @author    Mark Tomlinson
+ * @license   GPL-2.0+
+ * @since     1.0.0
  */
 
 // Exit if accessed directly
 if (!defined('ABSPATH')) exit();
 
 class Pointers {
+	//region PROPERTIES
 	/**
-	 * Singleton because we only want one instance of the product list at a time.
+	 * Singleton instance
+	 *
+	 * @var self|null
+	 * @since 1.0.0
 	 */
-	private static $instance = null;
-	private $pointer_title;
+	private static ?self $instance = null;
 
-	// Public method to get the instance
-	public static function get_instance() {
+	/**
+	 * Title for pointer messages
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
+	private string $pointer_title;
+	//endregion
+
+	//region INSTANCE MANAGEMENT
+	/**
+	 * Get singleton instance
+	 *
+	 * @since 1.0.0
+	 * @return Pointers Single instance of this class
+	 */
+	public static function get_instance(): self {
 		if (self::$instance === null) {
 			self::$instance = new self();
 		}
 		return self::$instance;
 	}
 
-	// Prevent cloning of the instance
-	public function __clone() {}
+	/**
+	 * Prevent object cloning
+	 *
+	 * @since 1.0.0
+	 */
+	public function __clone(): void {}
 
-	// Prevent unserializing of the instance
-	public function __wakeup() {}
+	/**
+	 * Prevent object unserialization
+	 *
+	 * @since 1.0.0
+	 */
+	public function __wakeup(): void {}
 
-	// Private constructor
+	/**
+	 * Initialize pointer management and register hooks
+	 *
+	 * Sets up WordPress hooks for admin pointer display and management.
+	 *
+	 * @since 1.0.0
+	 */
 	private function __construct() {
-		add_action('admin_enqueue_scripts', array($this, 'mt2mba_admin_pointer_load'), 1000);
+		add_action('admin_enqueue_scripts', array($this, 'mt2mba_admin_pointer_load'), MT2MBA_ADMIN_POINTER_PRIORITY);
 		// Admin pointers for attribute term edit screen
 		add_filter('mt2mba_admin_pointers-edit-term', array($this, 'mt2mba_admin_pointers_edit_term'));
 		// Admin pointer for plugin page
 		add_filter('mt2mba_admin_pointers-plugins', array($this, 'mt2mba_admin_pointers_plugins'));
 	}
+	//endregion
 
+	//region HOOKS & CALLBACKS
 	/**
-	 * Find pointers that have not been dismissed
-	 * and add the scripts to those pages
+	 * Load admin pointers for current screen
 	 *
-	 * @param	string	$hook_suffix	Unused
+	 * Checks for non-dismissed pointers on the current admin screen
+	 * and enqueues necessary scripts and styles for display.
 	 *
+	 * @since 1.0.0
+	 * @param string $hook_suffix Current admin page hook (unused)
 	 */
-	function mt2mba_admin_pointer_load($hook_suffix) {
-		 // Don't run on WP < 3.3
-		if (get_bloginfo('version') < '3.3') return;
+	function mt2mba_admin_pointer_load(string $hook_suffix): void {
+		 // Don't run on WP < minimum version
+		if (get_bloginfo('version') < MT2MBA_MIN_WP_VERSION) return;
 
 		// Get pointers for this screen
 		$screen = get_current_screen();
@@ -92,16 +137,23 @@ class Pointers {
 	}
 
 	/**
-	 * Define pointers for Add and Edit term pages
+	 * Define pointers for attribute term pages
+	 *
+	 * Configures contextual help pointers for the add and edit term
+	 * pages to guide users in setting markup values.
+	 *
+	 * @since 1.0.0
+	 * @param array $pointers Existing pointers array
+	 * @return array          Enhanced pointers array with term-specific pointers
 	 */
-	function mt2mba_admin_pointers_edit_term($pointers) {
+	function mt2mba_admin_pointers_edit_term(array $pointers): array {
 		$pointer_content = sprintf (
 			'<h3><em>%s</em></h3><p>%s</p>',
 			MT2MBA_PLUGIN_NAME,
 			__('Markups can be fixed values such as <code>5</code> or <code>5.95</code>, or percentages such as <code>5%</code> or <code>1.23%</code>. Use plus or minus signs (like <code>+5.95</code> or <code>-1.23%</code>) for increases or decreases.<br/>Markups are applied when setting prices or reapplying markups to variations.',
 			'markup-by-attribute-for-woocommerce')
 		);
-		
+
 		$pointers = array (
 			'mt2mba-term_add_markup' => array (
 				'target' => '#term_add_markup',
@@ -125,8 +177,15 @@ class Pointers {
 
 	/**
 	 * Define pointer for plugins page
+	 *
+	 * Configures a help pointer on the plugins page to guide users
+	 * to the plugin instructions and documentation.
+	 *
+	 * @since 1.0.0
+	 * @param array $pointers Existing pointers array
+	 * @return array          Enhanced pointers array with plugin page pointer
 	 */
-	function mt2mba_admin_pointers_plugins($pointers) {
+	function mt2mba_admin_pointers_plugins(array $pointers): array {
 		$pointer_content = sprintf (
 			'<h3>%s</h3><p>%s</p>',
 			MT2MBA_PLUGIN_NAME,
@@ -145,6 +204,6 @@ class Pointers {
 		);
 		return $pointers;
 	}
+	//endregion
 
-}	// End	class MT2MBA_UTILITY_POINTERS
-?>
+}
