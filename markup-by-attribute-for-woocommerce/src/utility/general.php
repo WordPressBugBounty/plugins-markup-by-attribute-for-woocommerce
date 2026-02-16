@@ -1,7 +1,6 @@
 <?php
 namespace mt2Tech\MarkupByAttribute\Utility;
 use mt2Tech\MarkupByAttribute\Backend as Backend;
-use mt2Tech\MarkupByAttribute\Frontend as Frontend;
 
 /**
  * Core utility functions for Markup-by-Attribute plugin
@@ -63,7 +62,7 @@ class General {
 			update_option('mt2mba_db_version', MT2MBA_DB_VERSION, false);
 		} elseif (version_compare($current_version, MT2MBA_DB_VERSION, '<')) {
 			// Perform upgrade if required
-			$this->mt2mba_db_upgrade();
+			$this->dbUpgrade();
 		}
 
 		// Set global values used throughout the code
@@ -90,7 +89,7 @@ class General {
 	 *
 	 * @since 2.0.0
 	 */
-	function mt2mba_db_upgrade() {
+	private function dbUpgrade() {
 		global $wpdb;
 
 		// Get current version at start of function
@@ -139,7 +138,7 @@ class General {
 		}
 
 		//	Delete discontinued setting, mt2mba_show_attrb_list
-		if ($current_db_version < 2.2) {
+		if (version_compare($current_db_version, '2.2', '<')) {
 			$wpdb->delete("{$wpdb->prefix}options", array('option_name'=>'mt2mba_show_attrb_list'));
 		}
 
@@ -179,18 +178,18 @@ class General {
 	 * Handles plugin settings for showing/hiding markup, currency symbols, and formatting.
 	 *
 	 * @since 2.0.0
-	 * @param float $markup Signed markup amount
-	 * @return string       Formatted markup for dropdown display (e.g., " (+$5.00)")
+	 * @param string $markup Signed markup amount (string|float at runtime, cast to string)
+	 * @return string        Formatted markup for dropdown display (e.g., " (+$5.00)")
 	 */
-	function formatOptionMarkup($markup) {
-		if ($markup <> "" && $markup <> 0) {
+	public function formatOptionMarkup(string $markup): string {
+		if ($markup != "" && $markup != 0) {
 			// Jump out if markup is not to be displayed.
 			if (MT2MBA_DROPDOWN_BEHAVIOR == 'hide') {
 				return '';
 			}
 
 			// Set sign
-			$sign = $markup < 0 ? "-" : "+";
+			$sign = (float) $markup < 0 ? "-" : "+";
 			// There are instances where the markup for the product is not in the database.
 			// Where this is the case and the markup is a percentage, show only the percentage.
 			if (strpos($markup, '%')) {
@@ -211,13 +210,13 @@ class General {
 
 	/**
 	 * Format the add and subtract line items that appears in the variation description
-	 * @param	float	$markup		Signed markup amount
+	 * @param	string	$markup		Signed markup amount (string|float at runtime, cast to string)
 	 * @param	string	$attrb_name	Attribute name that the markup applies to
 	 * @param	string	$term_name	Attribute term that the markup applies to
 	 * @return	string				Formatted description
 	 */
-	function formatVariationMarkupDescription($markup, $attrb_name, $term_name) {
-		if ($markup <> "" && $markup <> 0) {
+	public function formatVariationMarkupDescription(string $markup, string $attrb_name, string $term_name): string {
+		if ($markup != "" && $markup != 0) {
 			// Clean any existing markup from the term name before formatting
 			$term_name = $this->stripMarkupAnnotation($term_name);
 
@@ -228,7 +227,7 @@ class General {
 			// Two different translation strings based on whether attribute name is included
 			if (MT2MBA_INCLUDE_ATTRB_NAME == 'yes') {
 				// Translators; %1$s is the formatted price, %2$s is the attribute name, %3$s is the term name
-				$desc_format = $markup < 0 ?
+				$desc_format = (float) $markup < 0 ?
 					__('Subtract %1$s for %2$s: %3$s', 'markup-by-attribute-for-woocommerce') :
 					__('Add %1$s for %2$s: %3$s', 'markup-by-attribute-for-woocommerce');
 
@@ -241,7 +240,7 @@ class General {
 					)
 				);
 			} else {				// Translators; %1$s is the formatted price, %2$s is the term name
-				$desc_format = $markup < 0 ?
+				$desc_format = (float) $markup < 0 ?
 					__('Subtract %1$s for %2$s', 'markup-by-attribute-for-woocommerce') :
 					__('Add %1$s for %2$s', 'markup-by-attribute-for-woocommerce');
 
@@ -273,7 +272,7 @@ class General {
 	 * @param string $string    The string to be processed
 	 * @return string           The string minus the text to be removed and the beginning and ending markers
 	 */
-	public function remove_bracketed_string(string $beginning, string $ending, string $string): string {
+	public function removeBracketedString(string $beginning, string $ending, string $string): string {
 		$beginningPos = strpos($string, $beginning, 0);
 		$endingPos = strpos($string, $ending, $beginningPos);
 
@@ -440,4 +439,3 @@ class General {
 	//endregion
 
 }	//	End class MT2MBA_UTILITY_GENERAL
-?>

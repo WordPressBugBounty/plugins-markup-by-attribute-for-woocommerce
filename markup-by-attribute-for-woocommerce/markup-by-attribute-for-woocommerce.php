@@ -11,7 +11,7 @@ use mt2Tech\MarkupByAttribute\Utility as Utility;
  * This file is part of the Markup by Attribute for WooCommerce plugin by Mark Tomlinson
  *
  * @package   markup-by-attribute-for-woocommerce
- * @version   4.4.0
+ * @version   4.5.0
  * @author    Mark Tomlinson
  * @license   GPL-2.0+
  */
@@ -28,15 +28,18 @@ use mt2Tech\MarkupByAttribute\Utility as Utility;
  * License URI:             https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:             markup-by-attribute-for-woocommerce
  * Domain Path:             /languages
- * Version:                 4.4.0
- * Stable tag:              4.4.0
- * Tested up to:            6.9
+ * Version:                 4.5.0
+ * Stable tag:              4.5.0
+ * Tested up to:            6.9.1
  * Requires at least:       5.7
  * PHP tested up to:        8.4.11
  * Requires PHP:            7.4.3
- * WC tested up to:         10.3.5
+ * NOTE: Union types (e.g., string|float) require PHP 8.0+. Some method parameters
+ *       accept multiple types at runtime but are typed as string for 7.4 compatibility.
+ *       See affected method docblocks for details.
+ * WC tested up to:         10.5.1
  * WC requires at least:    5.0.0
- * MySQL tested up to:      8.4.7
+ * MySQL tested up to:      8.4.8
  */
 
 // Sanity check. Exit if accessed directly.
@@ -166,18 +169,18 @@ function mt2mba_main(): void {
 		// Admin messages for notices
 		$admin_messages = [
 			'info' => [
-				// ["message_name1", "This is a dismissable info message."],
-				// ["message_name2", "This is another dismissable info message."]
+//				["message_name1", "This is a dismissable info message."],
+//				["message_name2", "This is another dismissable info message."]
 			],
 			'warning' => [
-				// ["message_name3", "This is a dismissable warning message."],
-				// ["message_name4", "This is another dismissable warning message."]
+//				["message_name3", "This is a dismissable warning message."],
+//				["message_name4", "This is another dismissable warning message."]
 			]
 		];
 
 		// Initialize backend components
 		$notices = Utility\Notices::get_instance();
-		$notices->send_notice_array($admin_messages);
+		$notices->sendNoticeArray($admin_messages);
 
 		Utility\Pointers::get_instance();
 		Backend\Term::get_instance();
@@ -192,4 +195,3 @@ function mt2mba_main(): void {
 
 // Make sure this line is outside any function
 add_action('woocommerce_init', __NAMESPACE__ . '\mt2mba_main');
-?>

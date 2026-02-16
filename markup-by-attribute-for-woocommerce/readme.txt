@@ -9,15 +9,15 @@ Contributors:			MarkTomlinson
 Donate link:			https://www.paypal.me/MT2Dev/5
 License:				GPLv3
 License URI:			https://www.gnu.org/licenses/gpl-3.0.html
-Version:                4.4.0
-Stable tag:             4.4.0
-Tested up to:           6.9
+Version:                4.5.0
+Stable tag:             4.5.0
+Tested up to:           6.9.1
 Requires at least:      5.7
 PHP tested up to:       8.4.11
 Requires PHP:           7.4.3
-WC tested up to:        10.3.5
+WC tested up to:        10.5.1
 WC requires at least:   5.0.0
-MySQL tested up to:     8.4.7
+MySQL tested up to:     8.4.8
 
 This plugin adds product variation markup by attribute to WooCommerce and adjusts product variation regular and sale prices accordingly.
 
@@ -49,11 +49,10 @@ This plugin does one thing - it adds pricing control to WooCommerce's global pro
 * Add-on services: Pricing for monogramming, gift wrapping, etc.
 * Attribute-driven costs: Any situation where product options consistently affect pricing
 
-= New in Version 4.3 =
-* New Base Price column for easier price management
-* Improved markup visualization in the product editor
-* Enhanced bulk update tools
-* Better multilingual support with new translations
+= New in Version 4.5 =
+* Hardened security across all input handling
+* Faster bulk pricing with optimized database operations
+* Improved code reliability with modern coding practices while maintaining PHP 7.4+ compatibility
 
 == Installation ==
 
@@ -201,9 +200,35 @@ If you use Markup-by-Attribute and want to see me continue support for it, I enc
 7. The settings page allows configuration of how the markup is displayed.
 
 == Upgrade Notice ==
-Version 4.4.0 - Major security improvements with enhanced input validation, XSS protection, and CSRF protection. Performance optimizations and code quality improvements. Compatible with WordPress 6.9.
+Version 4.5.0 - Security hardening, performance optimization, and code quality improvements. Sale base price field now always visible. Compatible with WordPress 6.9.
 
 == Changelog ==
+= 4.5.0 =
+*Release Date: February 2026*
+
+**Security Improvements (3 fixes)**
+* Replaced raw HTML AJAX response with JSON data for base price updates (XSS prevention)
+* Replaced per-row inline scripts with data attributes and delegated event handling
+* Added input sanitization to product list column sort parameter
+
+**Performance Improvements (2 fixes)**
+* Replaced per-variation database queries with bulk operations when clearing markup descriptions
+* Replaced per-variation WooCommerce object loading with bulk meta queries for price calculations
+
+**Code Quality Improvements (6 fixes)**
+* Added explicit visibility modifiers to all class methods
+* Added PHP 7.4-compatible type hints with documented union type limitations
+* Replaced legacy `<>` operators with standard `!=`
+* Standardized all method names to camelCase convention
+* Removed unused `use` statement
+* Fixed inconsistent version comparison to use `version_compare()`
+
+**Bug Fixes**
+* Sale base price field now always visible on the General tab
+
+**Maintenance**
+* Added PHP union type compatibility note for PHP 7.4 support
+
 = 4.4.0 =
 *Release Date: November 2025*
 
@@ -603,40 +628,4 @@ FIX: Remove the error_log() statement accidentally left in.
 = 1.0 =
 
  * Initial version.
-
-== Upgrade Notice ==
-
-= 3.11 =
-
-Ensured compatibility with current versions of WordPress, WooCommerce, and PHP. Resolved a PHP 'depreciation' warning.
-
-Fixed a bug where Markup-by-Attribute would get confused about the decimal separator because the server and WooCommerce localization settings conflicted.
-
-= 3.9 =
-
-Added a new feature that allows Markup-by-Attribute to add the markup to the name of the option. This is useful when the dropdown box has been replaced by color swatches, checkboxes, or some other selector. As long as the name of the option is displayed (for instance, when the cursor hovers over it), then the markup will be seen by your customer.
-
-Fixed a bug where Markup-by-Attribute would overwrite the options' selector for some themes and other plugins. This occurs if the theme or plugin provided changed the function of the options' selector (for instance, to color swatches) and did not code it so that they take precedence.
-
-= 1.3.1 =
-
- * Includes clearer instructions and inline help.
- * Repairs how percentage markups are displayed.
-
-= 1.2.0 =
-
- * Now allows the use of percentage (5%) markups and markdowns, as well as fixed values ($5).
- * And it stores the actual markup value displayed in the attribute drop-down with the product. This allows changing of the markup in the attribute without affecting the markup displayed with the product.
-
-= 1.1.1 =
-
-Prevents null prices (due to an apparent bug in WooCommerce sale_price) from being adjusted with a markup.
-
-= 1.1 =
-
- * Markup is now stored in metadata, freeing up the Description field. Edits are added to the code, so the markup will always be stored in the correct format.
- * Code improvements to add robustness and supportability.
-
-= 1.0 =
-
-Initial version
+ 

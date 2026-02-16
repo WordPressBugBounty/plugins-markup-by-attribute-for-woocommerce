@@ -65,9 +65,9 @@ class Notices {
 	 */
 	private function __construct() {
 		//	Enqueue notice dismissal JScript
-		add_action('admin_enqueue_scripts', array($this, 'action_admin_enqueue_scripts'));
+		add_action('admin_enqueue_scripts', array($this, 'enqueueNoticeScripts'));
 		//	Action to set the message dismissal option
-		add_action('admin_init', array($this, 'action_admin_init'));
+		add_action('admin_init', array($this, 'handleNoticeDismissal'));
 	}
 	//endregion
 
@@ -80,7 +80,7 @@ class Notices {
 	 *
 	 * @since 1.0.0
 	 */
-	public function action_admin_enqueue_scripts(): void {
+	public function enqueueNoticeScripts(): void {
 		wp_enqueue_script (
 			'jq-mt2mba-clear-notices',
 			MT2MBA_PLUGIN_URL . 'src/js/jq-mt2mba-clear-notices.js',
@@ -96,9 +96,18 @@ class Notices {
 	 *
 	 * @since 1.0.0
 	 */
-	public function action_admin_init(): void {
+	public function handleNoticeDismissal(): void {
 		if (isset($_GET['mt2mba_dismiss'])) {
-			$dismiss_option = htmlspecialchars($_GET['mt2mba_dismiss']);
+			// Verify nonce
+			if (!isset($_GET['_wpnonce']) ||
+				!wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'mt2mba_dismiss_notice')) {
+				return;
+			}
+			// Verify capability
+			if (!current_user_can('manage_woocommerce')) {
+				return;
+			}
+			$dismiss_option = sanitize_key($_GET['mt2mba_dismiss']);
 			update_option("mt2mba_dismissed_$dismiss_option", true, false);
 			wp_die();
 		}
@@ -117,7 +126,7 @@ class Notices {
 	 *                             - type (string): 'error', 'warning', 'success', 'info'
 	 *                             - messages (array): Each containing [name, message]
 	 */
-	public function send_notice_array(array $admin_notices): void {
+	public function sendNoticeArray(array $admin_notices): void {
 		foreach ($admin_notices as $type => $notices) {
 			foreach ($notices as $notice_id => $notice) {
 				$this->notice($type, $notice[1], $notice[0]);
@@ -143,7 +152,10 @@ class Notices {
 			'admin_notices',
 			function() use ($type, $message, $dismiss_option) {
 				$dismiss_url = add_query_arg (
-					array('mt2mba_dismiss' => $dismiss_option),
+					array(
+						'mt2mba_dismiss' => $dismiss_option,
+						'_wpnonce'       => wp_create_nonce('mt2mba_dismiss_notice'),
+					),
 					admin_url()
 				);
 				if (!get_option("mt2mba_dismissed_{$dismiss_option}")) {

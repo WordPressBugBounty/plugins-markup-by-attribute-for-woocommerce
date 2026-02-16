@@ -105,11 +105,11 @@ class ProductList {
 	 */
 	public function enqueueAssets(string $hook): void {
 		// Product List page?
-		if (!$this->is_product_list_page($hook)) return;
+		if (!$this->isProductListPage($hook)) return;
 
 		// Enqueue Assets
-		$this->enqueue_scripts($hook);
-		$this->enqueue_styles($hook);
+		$this->enqueueScripts($hook);
+		$this->enqueueStyles($hook);
 	}
 
 	/**
@@ -118,7 +118,7 @@ class ProductList {
 	 * @since 3.13.0
 	 * @param string $hook Current admin page hook
 	 */
-	public function enqueue_scripts(string $hook): void {
+	public function enqueueScripts(string $hook): void {
 		wp_enqueue_script(
 			'mt2mba-product-list-markup',
 			plugins_url('js/jq-mt2mba-reapply-markups-productlist.js', dirname(__FILE__)),
@@ -133,6 +133,7 @@ class ProductList {
 			array(
 				'security' => wp_create_nonce('handleMarkupReapplication'),
 				'i18n' => array(
+					'reapplyTitle' => __('Reapply markups using base price: %s', 'markup-by-attribute-for-woocommerce'),
 					'processing' => __('Please wait; processing product %1$s of %2$s...', 'markup-by-attribute-for-woocommerce'),
 					'processed' => _n(
 						'%s product processed successfully.',
@@ -157,7 +158,7 @@ class ProductList {
 	 * @since 3.13.0
 	 * @param string $hook Current admin page hook
 	 */
-	public function enqueue_styles(string $hook): void {
+	public function enqueueStyles(string $hook): void {
 		wp_enqueue_style(
 			'mt2mba-admin-styles',
 			plugins_url('css/admin-style.css', dirname(__FILE__)),
@@ -287,7 +288,7 @@ class ProductList {
 				$attribute_name = wc_attribute_label($attribute->get_name());
 				$taxonomy = $attribute->get_name();
 
-				if ($this->attribute_has_markup($taxonomy)) {
+				if ($this->attributeHasMarkup($taxonomy)) {
 					$has_markup = true;
 				}
 			} else {
@@ -309,21 +310,10 @@ class ProductList {
 		if ($this->variable_products[$product_id] && $has_markup) {
 			echo '<br/><a href="#" class="js-mt2mba-reapply-markup" ' .
 				'data-product-id="' . esc_attr($product_id) . '" ' .
+				'data-base-price="' . esc_attr(html_entity_decode(strip_tags(wc_price($base_price)))) . '" ' .
 				'title="' . esc_attr__('Reapply Markups', 'markup-by-attribute-for-woocommerce') . '">' .
 				'<span class="dashicons dashicons-update"></span>' .
 				__('Reprice', 'markup-by-attribute-for-woocommerce') . '</a>';
-			// Add hover text to reprice icon
-			echo "<script>
-				jQuery(document).ready(function($) {
-					$('.js-mt2mba-reapply-markup[data-product-id=\"{$product_id}\"]')
-						.attr('title', '" .
-						esc_js(sprintf(
-							__('Reapply markups using base price: %s', 'markup-by-attribute-for-woocommerce'),
-							html_entity_decode(strip_tags(wc_price($base_price)))
-						)) .
-						"');
-				});
-				</script>";
 		}
 	}
 	//endregion
@@ -422,7 +412,7 @@ class ProductList {
 	/**
 	 * Handle AJAX request to refresh a single product row
 	 *
-	 * @since 4.0.0
+	 * @since	4.0.0
 	 */
 	public function refreshProductRow(): void {
 		check_ajax_referer('handleMarkupReapplication', 'security');
@@ -445,11 +435,11 @@ class ProductList {
 	/**
 	 * Check if current page is the WooCommerce product list
 	 *
-	 * @since 3.13.0
-	 * @param string $hook Current admin page hook
-	 * @return bool        True if on product list page
+	 * @since	3.13.0
+	 * @param	string	$hook	Current admin page hook
+	 * @return	bool        	True if on product list page
 	 */
-	private function is_product_list_page(string $hook): bool {
+	private function isProductListPage(string $hook): bool {
 		return $hook === 'edit.php' &&
 				isset($_GET['post_type']) &&
 				$_GET['post_type'] === 'product';
@@ -458,32 +448,25 @@ class ProductList {
 	/**
 	 * Check if an attribute taxonomy has any terms with markup
 	 *
-	 * @since 3.13.0
-	 * @param string $taxonomy Attribute taxonomy name
-	 * @return bool            True if markup exists
+	 * @since	3.13.0
+	 * @param	string	$taxonomy	Attribute taxonomy name
+	 * @return	bool				True if markup exists
 	 */
-	private function attribute_has_markup(string $taxonomy): bool {
+	private function attributeHasMarkup(string $taxonomy): bool {
 		// Check cache first
 		if (isset(self::$markup_cache[$taxonomy])) {
 			return self::$markup_cache[$taxonomy];
 		}
 
-		$terms = get_terms([
-			'taxonomy' => $taxonomy,
+		$terms_with_markup = get_terms([
+			'taxonomy'   => $taxonomy,
 			'hide_empty' => false,
+			'meta_query' => [['key' => 'mt2mba_markup', 'compare' => 'EXISTS']],
+			'number'     => 1,
 		]);
 
-		foreach ($terms as $term) {
-			$markup = get_term_meta($term->term_id, 'mt2mba_markup', true);
-			if (!empty($markup)) {		// Set flag and return true when the first markup is found
-				self::$markup_cache[$taxonomy] = true;
-				return true;
-			}
-		}
-
-		self::$markup_cache[$taxonomy] = false;
-		return false;
+		self::$markup_cache[$taxonomy] = !empty($terms_with_markup);
+		return self::$markup_cache[$taxonomy];
 	}
 	//endregion
 }
-?>

@@ -191,20 +191,11 @@ class Product {
 			return;
 		}
 
-		// Set up the global $post object to provide proper context for hooks
-		global $post;
-		$post = get_post($product_id);
-		setup_postdata($post);
-
-		// Capture the output of all general panel hooks using output buffering
-		ob_start();
-		do_action('woocommerce_product_options_general_product_data');
-		$html = ob_get_clean();
-
-		// Clean up global state to prevent side effects
-		wp_reset_postdata();
-
-		wp_send_json_success(['html' => $html]);
+		// Return base price values for JS to update fields directly
+		wp_send_json_success([
+			'base_regular_price' => get_post_meta($product_id, 'mt2mba_base_regular_price', true),
+			'base_sale_price'    => get_post_meta($product_id, 'mt2mba_base_sale_price',    true),
+		]);
 	}
 	//endregion
 
@@ -270,20 +261,18 @@ class Product {
 				'custom_attributes'	=> ['readonly' => 'readonly']
 			]);
 
-			// Sale Price Field (if exists)
-			if ($base_sale_price !== '') {
-				woocommerce_wp_text_input([
-					'id'			=> 'base_sale_price',
-					'label'				=> __('Sale base price', 'markup-by-attribute-for-woocommerce') . $currency_symbol,
-					'description'		=> __('Sale base price for the variations before markup', 'markup-by-attribute-for-woocommerce'),
-					'value'			=> $base_sale_price,
-					'type'			=> 'text',
-					'desc_tip'		=> true,
-					'class'			=> 'wc_input_price',
-					'data_type'		=> 'price',
-					'custom_attributes'	=> ['readonly' => 'readonly']
-				]);
-			}
+			// Sale Price Field (always shown, even if empty)
+			woocommerce_wp_text_input([
+				'id'				=> 'base_sale_price',
+				'label'				=> __('Sale base price', 'markup-by-attribute-for-woocommerce') . $currency_symbol,
+				'description'		=> __('Sale base price for the variations before markup', 'markup-by-attribute-for-woocommerce'),
+				'value'				=> $base_sale_price,
+				'type'				=> 'text',
+				'desc_tip'			=> true,
+				'class'				=> 'wc_input_price',
+				'data_type'			=> 'price',
+				'custom_attributes'	=> ['readonly' => 'readonly']
+			]);
 
 			echo '<div id="base_price_info"><p class="form-field">' .
 				'<span class="base-price-info dashicons dashicons-info"></span>' .
@@ -386,4 +375,3 @@ class Product {
 	//endregion
 
 }
-?>

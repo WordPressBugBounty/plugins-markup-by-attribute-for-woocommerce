@@ -79,10 +79,47 @@ class PriceSetHandler extends PriceMarkupHandler {
 		$rounded_base = round($this->base_price, $this->price_decimals);
 		$base_price_description = $this->handleBasePriceUpdate($product_id, $rounded_base);
 
-		// Process each variation
+		// Bulk-fetch variation attributes and descriptions (2 queries for all variations)
+		global $wpdb;
+		$variation_ids = array_map('intval', $variations);
+		$id_placeholders = implode(',', array_fill(0, count($variation_ids), '%d'));
+
+		// All attribute assignments (attribute_pa_color => 'red', etc.)
+		$attribute_rows = $wpdb->get_results($wpdb->prepare(
+			"SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta}
+			 WHERE post_id IN ($id_placeholders) AND meta_key LIKE 'attribute_pa_%'",
+			$variation_ids
+		));
+
+		// All variation descriptions
+		$description_rows = $wpdb->get_results($wpdb->prepare(
+			"SELECT post_id, meta_value FROM {$wpdb->postmeta}
+			 WHERE post_id IN ($id_placeholders) AND meta_key = '_variation_description'",
+			$variation_ids
+		));
+
+		// Organize into lookup arrays
+		$variation_attributes = [];
+		foreach ($attribute_rows as $row) {
+			// Strip 'attribute_' prefix to match markup_table keys (e.g., 'pa_color')
+			$taxonomy = substr($row->meta_key, 10);
+			$variation_attributes[$row->post_id][$taxonomy] = $row->meta_value;
+		}
+		$variation_descriptions = [];
+		foreach ($description_rows as $row) {
+			$variation_descriptions[$row->post_id] = $row->meta_value;
+		}
+
+		// Process each variation using pre-fetched data
 		$variation_updates = [];
 		foreach ($variations as $variation_id) {
-			$variation_updates[] = $this->processVariation($variation_id, $markup_table, $base_price_description);
+			$variation_updates[] = $this->processVariation(
+				$variation_id,
+				$markup_table,
+				$base_price_description,
+				$variation_attributes[$variation_id] ?? [],
+				$variation_descriptions[$variation_id] ?? ''
+			);
 		}
 
 		// Bulk update all variations from the variations_update table
@@ -139,14 +176,20 @@ class PriceSetHandler extends PriceMarkupHandler {
 				// Remove Sales Price metadata
 				delete_post_meta($product_id, "mt2mba_base_" . SALE_PRICE);
 
-				// Loop through variations to remove markup information
-				global $mt2mba_utility;
-				foreach ($variations as $variation_id) {
-					$variation = wc_get_product($variation_id);
-					if (!$variation) continue;		// Skip if product not found
+				// Bulk-fetch all variation descriptions in a single query
+				global $wpdb, $mt2mba_utility;
+				$variation_ids = array_map('intval', $variations);
+				$id_placeholders = implode(',', array_fill(0, count($variation_ids), '%d'));
+				$descriptions = $wpdb->get_results($wpdb->prepare(
+					"SELECT post_id, meta_value FROM {$wpdb->postmeta}
+					WHERE post_id IN ($id_placeholders) AND meta_key = '_variation_description'",
+					$variation_ids
+				));
 
-					$description = $variation->get_description();
-					$markup_pos = strpos($description, PRODUCT_MARKUP_DESC_BEG);
+				// Process descriptions in PHP — strip markup information
+				$updates = [];
+				foreach ($descriptions as $row) {
+					$markup_pos = strpos($row->meta_value, PRODUCT_MARKUP_DESC_BEG);
 
 					// If no markup information, skip variation
 					if ($markup_pos === false) {
@@ -155,21 +198,45 @@ class PriceSetHandler extends PriceMarkupHandler {
 
 					// If the description begins with markup information, delete the description
 					if ($markup_pos === 0) {
-						$new_description = '';
+						$updates[] = ['id' => (int) $row->post_id, 'description' => ''];
 					// Otherwise, strip the markup information from the description
 					} else {
-						$new_description = $mt2mba_utility->remove_bracketed_string(
-							PRODUCT_MARKUP_DESC_BEG,
-							PRODUCT_MARKUP_DESC_END,
-							$description
-						);
+						$updates[] = [
+							'id'          => (int) $row->post_id,
+							'description' => $mt2mba_utility->removeBracketedString(
+								PRODUCT_MARKUP_DESC_BEG,
+								PRODUCT_MARKUP_DESC_END,
+								$row->meta_value
+							),
+						];
 					}
+				}
 
-					// Update the variation with the new description
-					$variation->set_description($new_description);
-					$variation->save();
-
-				}	// END foreach ($variations as $variation_id)
+				// Bulk-write cleaned descriptions back in a single operation
+				if (!empty($updates)) {
+					$placeholders = [];
+					$values = [];
+					// Delete existing descriptions for variations that need updating
+					$update_ids = array_column($updates, 'id');
+					$del_placeholders = implode(',', array_fill(0, count($update_ids), '%d'));
+					$wpdb->query($wpdb->prepare(
+						"DELETE FROM {$wpdb->postmeta}
+						WHERE post_id IN ($del_placeholders) AND meta_key = '_variation_description'",
+						$update_ids
+					));
+					// Insert cleaned descriptions
+					foreach ($updates as $update) {
+						$placeholders[] = "(%d, %s, %s)";
+						$values[] = $update['id'];
+						$values[] = '_variation_description';
+						$values[] = $update['description'];
+					}
+					$wpdb->query($wpdb->prepare(
+						"INSERT INTO {$wpdb->postmeta} (post_id, meta_key, meta_value) VALUES "
+						. implode(', ', $placeholders),
+						$values
+					));
+				}
 			}
 			// Do not continue markup logic
 			return true;
@@ -231,7 +298,7 @@ class PriceSetHandler extends PriceMarkupHandler {
 						if (MT2MBA_DESC_BEHAVIOR !== "ignore") {
 							$markup_table[$taxonomy][$term->slug]['description'] =
 								$mt2mba_utility->formatVariationMarkupDescription(
-									$markup_value,
+									(string) $markup_value,
 									$attrb_label,
 									$term->name
 								);
@@ -270,21 +337,15 @@ class PriceSetHandler extends PriceMarkupHandler {
 	 * @param	int		$variation_id			The ID of the variation
 	 * @param	array	$markup_table			The markup calculations table
 	 * @param	string	$base_price_description	Base price description text
+	 * @param	array	$attributes				Pre-fetched attribute assignments (taxonomy => term_slug)
+	 * @param	string	$current_description	Pre-fetched variation description
 	 * @return	array							Processed variation data
 	 */
-	private function processVariation($variation_id, $markup_table, $base_price_description): array {
-		global $mt2mba_utility;
-		// Clear WooCommerce caches to ensure fresh data, especially for sale price operations
-		wp_cache_delete($variation_id, 'posts');
-		wp_cache_delete($variation_id, 'post_meta');
-		wc_delete_product_transients($variation_id);
-
-		// Force fresh load of variation to avoid cached description data
-		$variation = wc_get_product($variation_id);
+	private function processVariation($variation_id, $markup_table, $base_price_description, $attributes, $current_description): array {
 		$variation_price = $this->base_price;
 		$markup_description = '';
 
-		foreach ($variation->get_attributes() as $attribute_id => $term_id) {
+		foreach ($attributes as $attribute_id => $term_id) {
 			if (isset($markup_table[$attribute_id][$term_id])) {
 				$markup = (float) $markup_table[$attribute_id][$term_id]["markup"];
 				$variation_price += $markup;
@@ -294,11 +355,11 @@ class PriceSetHandler extends PriceMarkupHandler {
 			}
 		}
 
-		$description = $this->buildVariationDescription($variation, $base_price_description, $markup_description, $variation_price);
+		$description = $this->buildVariationDescription($current_description, $base_price_description, $markup_description, $variation_price);
 
 		return [
-			'id' => $variation_id,
-			'price' => $variation_price,
+			'id'          => $variation_id,
+			'price'       => $variation_price,
 			'description' => trim($description)
 		];
 	}
@@ -310,13 +371,13 @@ class PriceSetHandler extends PriceMarkupHandler {
 	 * For sale prices: Preserves existing descriptions to maintain consistent regular price markup display.
 	 * This ensures descriptions always show how the regular price was calculated, regardless of current sale prices.
 	 *
-	 * @param	WC_Product	$variation				The variation product object
-	 * @param	string		$base_price_description	Base price description text (regular price)
-	 * @param	string		$markup_description		Markup-specific description text
-	 * @param	float		$variation_price		The calculated variation price
-	 * @return	string								Complete variation description
+	 * @param	string	$current_description	The variation's current description text
+	 * @param	string	$base_price_description	Base price description text (regular price)
+	 * @param	string	$markup_description		Markup-specific description text
+	 * @param	float	$variation_price		The calculated variation price
+	 * @return	string							Complete variation description
 	 */
-	protected function buildVariationDescription($variation, $base_price_description, $markup_description, $variation_price): string {
+	protected function buildVariationDescription($current_description, $base_price_description, $markup_description, $variation_price): string {
 		global $mt2mba_utility;
 
 		if ($this->price_type === REGULAR_PRICE) {
@@ -325,11 +386,10 @@ class PriceSetHandler extends PriceMarkupHandler {
 
 			// Preserve existing non-markup description content unless overwriting
 			if (MT2MBA_DESC_BEHAVIOR !== "overwrite") {
-				$description = $variation->get_description();
-				$description = $mt2mba_utility->remove_bracketed_string(
+				$description = $mt2mba_utility->removeBracketedString(
 					PRODUCT_MARKUP_DESC_BEG,
 					PRODUCT_MARKUP_DESC_END,
-					$description
+					$current_description
 				);
 			}
 
@@ -349,7 +409,7 @@ class PriceSetHandler extends PriceMarkupHandler {
 			return trim($description);
 		} else {
 			// For sale prices: preserve existing description to maintain regular price markup consistency
-			return $variation->get_description();
+			return $current_description;
 		}
 	}
 	//endregion
@@ -541,4 +601,3 @@ class PriceSetHandler extends PriceMarkupHandler {
 	}
 	//endregion
 }
-?>
